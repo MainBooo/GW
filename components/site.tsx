@@ -79,23 +79,37 @@ const stack = ["Next.js", "NestJS", "PostgreSQL", "Redis", "BullMQ", "Playwright
 const marqueeItems = [...stack, ...stack, ...stack]
 
 function TechMarquee() {
-  return (
-    <div className="relative overflow-hidden border-y border-white/10 bg-white/[0.02]">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-slate-950 to-transparent sm:w-40" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-slate-950 to-transparent sm:w-40" />
+  const items = [
+    "Next.js",
+    "NestJS",
+    "PostgreSQL",
+    "Redis",
+    "BullMQ",
+    "Playwright",
+    "Docker",
+    "TypeScript",
+  ]
 
-      <div className="tech-marquee flex min-w-max gap-3 py-5">
-        {marqueeItems.map((item, index) => (
-          <div
-            key={`${item}-${index}`}
-            className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 backdrop-blur"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
-            <span>{item}</span>
-          </div>
-        ))}
-      </div>
+  const renderGroup = (prefix: string) => (
+    <div className="gw-marquee-group">
+      {items.map((item, i) => (
+        <span key={prefix + "-" + i} className="gw-marquee-pill">
+          {item}
+        </span>
+      ))}
     </div>
+  )
+
+  return (
+    <section className="mt-20 border-y border-white/10 py-6">
+      <div className="gw-marquee-shell">
+        <div className="gw-marquee-track">
+          {renderGroup("a")}
+          {renderGroup("b")}
+          {renderGroup("c")}
+        </div>
+      </div>
+    </section>
   )
 }
 

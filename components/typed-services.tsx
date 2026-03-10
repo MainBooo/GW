@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-const typedWords = [
+const WORDS = [
   "SaaS platforms",
   "analytics dashboards",
   "monitoring systems",
@@ -11,52 +11,53 @@ const typedWords = [
 
 export default function TypedServices() {
   const [mounted, setMounted] = useState(false)
-  const [wordIndex, setWordIndex] = useState(0)
-  const [displayed, setDisplayed] = useState("")
+  const [index, setIndex] = useState(0)
+  const [subIndex, setSubIndex] = useState(0)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    const start = setTimeout(() => setMounted(true), 250)
-    return () => clearTimeout(start)
+    setMounted(true)
   }, [])
 
   useEffect(() => {
     if (!mounted) return
 
-    const current = typedWords[wordIndex]
-    const isDoneTyping = displayed === current
-    const isDoneDeleting = displayed === ""
+    const current = WORDS[index]
 
-    const timeout = setTimeout(
-      () => {
-        if (!deleting) {
-          if (isDoneTyping) {
-            setDeleting(true)
-            return
-          }
-          setDisplayed(current.slice(0, displayed.length + 1))
-        } else {
-          if (isDoneDeleting) {
-            setDeleting(false)
-            setWordIndex((prev) => (prev + 1) % typedWords.length)
-            return
-          }
-          setDisplayed(current.slice(0, displayed.length - 1))
-        }
-      },
-      !deleting && isDoneTyping ? 1100 : deleting ? 55 : 85
-    )
+    const timeout = setTimeout(() => {
+
+      if (!deleting && subIndex < current.length) {
+        setSubIndex((v) => v + 1)
+        return
+      }
+
+      if (!deleting && subIndex === current.length) {
+        setTimeout(() => setDeleting(true), 800)
+        return
+      }
+
+      if (deleting && subIndex > 0) {
+        setSubIndex((v) => v - 1)
+        return
+      }
+
+      if (deleting && subIndex === 0) {
+        setDeleting(false)
+        setIndex((v) => (v + 1) % WORDS.length)
+      }
+
+    }, deleting ? 70 : 130)   // ← в 2 раза медленнее
 
     return () => clearTimeout(timeout)
-  }, [mounted, displayed, deleting, wordIndex])
+
+  }, [subIndex, index, deleting, mounted])
+
+  if (!mounted) return null
 
   return (
-    <span className="typed-line">
-      <span className="text-white/72">Фокус:</span>
-      <span className="typed-slot">
-        <span className="typed-text">{mounted ? displayed || "\u00A0" : "\u00A0"}</span>
-        <span className="typed-caret" aria-hidden="true" />
-      </span>
+    <span className="typed-text">
+      {WORDS[index].substring(0, subIndex)}
+      <span className="typed-caret">|</span>
     </span>
   )
 }

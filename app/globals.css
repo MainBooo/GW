@@ -76,10 +76,7 @@ body {
   will-change: transform, opacity;
 }
 
-.tech-marquee {
-  animation: marqueeMove 26s linear infinite;
-  will-change: transform;
-}
+
 
 .cta-primary {
   position: relative;
@@ -153,36 +150,126 @@ body {
 }
 
 
+
+
+
+
+
+
+
+/* PARTICLES */
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+
+  50% {
+    transform: translateY(-40px) translateX(10px);
+  }
+
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.6);
+  animation: particleFloat 12s infinite ease-in-out;
+}
+
+
+/* TECH MARQUEE */
+
+
+
+
+
+
+
+.marquee-group +
+
+
+/* TECH MARQUEE */
+
+.tech-marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
 .marquee-track {
   display: flex;
+  align-items: center;
   width: max-content;
-  animation: marqueeLoop 26s linear infinite;
   will-change: transform;
+  animation: marqueeLoop 22s linear infinite;
 }
 
 .marquee-group {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex: 0 0 auto;
-  padding: 1.25rem 0;
-  padding-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.marquee-group + .marquee-group {
+  margin-left: 40px;
 }
 
 @keyframes marqueeLoop {
   from {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(-50%,0,0);
+    transform: translate3d(calc(-100% - 40px), 0, 0);
   }
 }
 
-@-webkit-keyframes marqueeLoop {
+
+/* GW MARQUEE START */
+
+.gw-marquee-shell {
+  width: 100%;
+  overflow: hidden;
+}
+
+.gw-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: gwMarqueeMove 18s linear infinite;
+}
+
+.gw-marquee-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.gw-marquee-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-right: 18px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 13px;
+  line-height: 1;
+}
+
+@keyframes gwMarqueeMove {
   from {
-    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    -webkit-transform: translate3d(-50%,0,0);
+    transform: translate3d(-33.3333%, 0, 0);
   }
 }
+
+/* GW MARQUEE END */
+
