@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-white antialiased;
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.18), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(124, 58, 237, 0.18), transparent 26%),
+    radial-gradient(circle at 40% 70%, rgba(8, 145, 178, 0.10), transparent 26%),
+    linear-gradient(180deg, #050816 0%, #080d20 100%);
+}
+
+.section-card {
+  @apply rounded-[28px] border border-white/10 bg-slate-950/50 backdrop-blur;
+}
+
+.container-shell {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.grid-glow {
+  position: relative;
+}
+
+.grid-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.55), rgba(124, 58, 237, 0.45), rgba(255,255,255,0.06));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 180px;
+  background: linear-gradient(to bottom, rgba(5, 8, 22, 0), rgba(5, 8, 22, 0.96));
+  pointer-events: none;
+}
+
+.hero-animated-gradient {
+  background:
+    radial-gradient(900px 540px at 78% 16%, rgba(124, 58, 237, 0.26), transparent 60%),
+    radial-gradient(760px 440px at 56% 58%, rgba(37, 99, 235, 0.18), transparent 60%),
+    radial-gradient(520px 280px at 18% 30%, rgba(14, 165, 233, 0.10), transparent 58%);
+  filter: blur(8px);
+  animation: gradientShift 16s ease-in-out infinite alternate;
+  will-change: transform, opacity, background-position;
+}
+
+.floating-particle {
+  position: absolute;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(103, 232, 249, 0.45) 45%, rgba(59, 130, 246, 0.08) 70%, transparent 72%);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
+  opacity: 0.32;
+  animation-name: particleFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.tech-marquee {
+  animation: marqueeMove 26s linear infinite;
+  will-change: transform;
+}
+
+.cta-primary {
+  position: relative;
+  isolation: isolate;
+}
+
+.cta-primary::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(59,130,246,0.18), rgba(124,58,237,0.22), rgba(34,211,238,0.14));
+  filter: blur(12px);
+  opacity: 0.55;
+  animation: ctaPulse 4s ease-in-out infinite;
+}
+
+.typed-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.5em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.typed-slot {
+  display: inline-flex;
+  align-items: center;
+  min-width: 18ch;
+  line-height: inherit;
+}
+
+.typed-text {
+  display: inline-block;
+  line-height: inherit;
+  color: rgb(103 232 249 / 0.95);
+  font-weight: 500;
+}
+
+.typed-caret {
+  display: inline-block;
+  width: 0.7ch;
+  height: 1.15em;
+  margin-left: 1px;
+  flex: 0 0 auto;
+  border-right: 2px solid rgba(103, 232, 249, 0.9);
+  animation: caretBlink 1s step-end infinite;
+}
+
+ (max-width: 640px) {
+  .typed-line {
+    min-height: 1.6em;
+    gap: 0.4rem;
+  }
+
+  .typed-slot {
+    min-width: 16ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-animated-gradient,
+  .floating-particle,
+  .tech-marquee,
+  .cta-primary::before,
+  .typed-caret {
+    animation: none !important;
+  }
+}
+
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeLoop 26s linear infinite;
+  will-change: transform;
+}
+
+.marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+  padding: 1.25rem 0;
+  padding-right: 0.75rem;
+}
+
+@keyframes marqueeLoop {
+  from {
+    transform: translate3d(0,0,0);
+  }
+  to {
+    transform: translate3d(-50%,0,0);
+  }
+}
+
+@-webkit-keyframes marqueeLoop {
+  from {
+    -webkit-transform: translate3d(0,0,0);
+  }
+  to {
+    -webkit-transform: translate3d(-50%,0,0);
+  }
+}
