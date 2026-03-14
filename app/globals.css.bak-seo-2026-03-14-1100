@@ -128,7 +128,7 @@ body {
   animation: caretBlink 1s step-end infinite;
 }
 
-@media (max-width: 640px) {
+ (max-width: 640px) {
   .typed-line {
     min-height: 1.6em;
     gap: 0.4rem;
@@ -191,6 +191,7 @@ body {
 
 
 
+.marquee-group +
 
 
 /* TECH MARQUEE */

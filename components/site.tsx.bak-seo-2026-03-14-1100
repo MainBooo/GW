@@ -72,24 +72,21 @@ const cases = [
     description:
       "Платформа тестирования торговых стратегий с параметрами запуска, историческими симуляциями и аналитикой результатов.",
     image: "/projects/hero-main.jpeg",
-    link: "https://alfaflow.generationweb.ru",
-    domain: "alfaflow.generationweb.ru",
+    link: "http://85.198.101.94:4174",
   },
   {
     title: "Competitor Intelligence Platform",
     description:
-      "Система мониторинга сайтов конкурентов с обнаружением изменений страниц, списком наблюдения и feed изменений.",
+      "Система мониторинга сайтов конкурентов с обнаружением изменений страниц, списком наблюдения и change feed.",
     image: "/projects/hero-bottom.jpeg",
-    link: "https://competitor.generationweb.ru",
-    domain: "competitor.generationweb.ru",
+    link: "http://85.198.101.94:3002/dashboard",
   },
   {
     title: "Analytics Dashboard",
     description:
-      "Интерактивная аналитическая dashboard-система для мониторинга данных, KPI, метрик и бизнес-показателей в реальном времени.",
+      "Интерактивная панель аналитики для мониторинга данных, метрик и бизнес-показателей в реальном времени.",
     image: "/projects/hero-top.jpeg",
-    link: "https://dashboard.generationweb.ru",
-    domain: "dashboard.generationweb.ru",
+    link: "http://85.198.101.94:4173",
   },
 ]
 
@@ -278,16 +275,16 @@ export default function Site() {
         <div className="relative container-shell grid min-h-[calc(100vh-80px)] items-center gap-10 py-12 lg:grid-cols-[0.94fr_1.06fr] lg:gap-12 lg:py-20">
           <div className="max-w-[720px]">
             <div className="mb-5 inline-flex rounded-full border border-blue-400/20 bg-blue-400/10 px-5 py-2.5 text-sm text-blue-100">
-              Разработка SaaS-платформ, MVP и внутренних систем под запуск и рост
+              Разработка SaaS-сервисов под запуск и рост
             </div>
 
             <h1 className="max-w-[760px] text-[44px] font-semibold leading-[0.96] tracking-[-0.05em] sm:text-[56px] lg:text-[72px] xl:text-[84px]">
-              Разработка SaaS-платформ, MVP и аналитических систем на заказ
+              Разработка SaaS-сервисов и аналитических платформ
             </h1>
 
             <p className="mt-6 max-w-[760px] text-[17px] leading-[1.6] text-white/74 sm:mt-8 sm:text-[20px] lg:text-[22px]">
-              Проектирую и запускаю веб-платформы для стартапов и бизнеса: SaaS-сервисы, личные кабинеты,
-              аналитические dashboard-системы, системы мониторинга, API, фоновые задачи и внутренние инструменты.
+              Проектирую и запускаю сложные веб-платформы для стартапов и бизнеса: личные кабинеты,
+              dashboards, системы мониторинга, API, фоновые задачи и внутренние инструменты.
             </p>
 
             <div className="mt-5 text-[15px] sm:text-base">
@@ -328,7 +325,7 @@ export default function Site() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Типы проектов</h2>
-            <p className="mt-3 max-w-2xl text-white/65">Фокус на проектах, где важны продуктовая логика, архитектура, надёжный backend и понятный интерфейс.</p>
+            <p className="mt-3 max-w-2xl text-white/65">Фокус на задачах, где важны продуктовая логика, архитектура и понятный интерфейс.</p>
           </div>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -404,8 +401,8 @@ export default function Site() {
             <div>
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Что входит в разработку</h2>
               <p className="mt-4 max-w-2xl text-white/68">
-                От первого экрана и схемы базы данных до запуска на VPS или в облаке. Можно зайти как с идеи,
-                так и на стадии, когда уже нужен сильный технический исполнитель под MVP, SaaS-платформу или внутреннюю систему.
+                От первого экрана и схемы базы данных до развёртывания на VPS или облаке. Можно зайти как с идеи,
+                так и на стадии, когда уже нужен сильный технический исполнитель.
               </p>
             </div>
             <div className="grid gap-3 text-sm text-white/80 sm:grid-cols-2">
@@ -429,7 +426,7 @@ export default function Site() {
       <section id="cases" className="container-shell py-10 sm:py-14">
         <div className="mb-8">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Примеры разработанных платформ</h2>
-          <p className="mt-3 max-w-2xl text-white/65">Реальные интерфейсы и демо-проекты, которые показывают уровень UI, архитектуры, backend-логики и продуктового мышления.</p>
+          <p className="mt-3 max-w-2xl text-white/65">Реальные интерфейсы проектов, которые показывают уровень UI, архитектуры и продуктового мышления.</p>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
           {cases.map((project) => (
@@ -445,9 +442,6 @@ export default function Site() {
                 <div className="p-6">
                   <h3 className="text-2xl font-semibold leading-tight">{project.title}</h3>
                   <p className="mt-4 text-base leading-7 text-white/68">{project.description}</p>
-                  <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/58">
-                    {project.domain}
-                  </div>
                 </div>
               </article>
             </a>
@@ -604,7 +598,7 @@ export default function Site() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">Обсудим ваш проект</h2>
             <p className="mt-5 text-lg leading-8 text-white/72">
-              Напишите в Telegram, чтобы обсудить разработку SaaS-платформы, MVP, dashboard-системы или внутреннего сервиса. Сориентирую по срокам, стоимости и архитектуре решения.
+              Опишите задачу, и вы получите ориентир по срокам, стоимости и формату реализации. Контакты ниже легко заменить на свои в одном файле.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <a
@@ -614,13 +608,13 @@ export default function Site() {
                 Написать в Telegram
               </a>
               <a
-                href="#cases"
+                href="mailto:hello@generationweb.dev"
                 className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-medium text-white/85 transition hover:bg-white/10"
               >
-                Посмотреть кейсы
+                hello@generationweb.dev
               </a>
             </div>
-            <div className="mt-8 text-sm text-white/45">Основной контакт для быстрых заявок: Telegram</div>
+            <div className="mt-8 text-sm text-white/45">Файл с контактами: components/site.tsx</div>
           </div>
         </div>
       </section>
@@ -628,7 +622,7 @@ export default function Site() {
       <footer className="container-shell pb-10 pt-4 text-sm text-white/45">
         <div className="flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div>© 2026 GenerationWeb</div>
-          <div>Разработка SaaS-платформ, MVP и аналитических систем</div>
+          <div>Разработка SaaS-сервисов и аналитических платформ</div>
         </div>
       </footer>
     </main>

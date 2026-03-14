@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react"
 
 const services = [
-  "SaaS-платформы на заказ",
-  "аналитические dashboard-системы",
+  "SaaS-платформы",
+  "аналитические dashboards",
   "системы мониторинга",
-  "внутренние бизнес-сервисы",
+  "internal tools",
 ]
 
 const SHOW_TIME = 2600
@@ -44,7 +44,8 @@ export default function TypedServices() {
   }, [])
 
   return (
-    <div className="relative flex h-[40px] items-center overflow-hidden">
+    <div className="relative h-[40px] flex items-center overflow-hidden">
+
       <span
         className={[
           "block whitespace-nowrap text-left",
@@ -59,6 +60,7 @@ export default function TypedServices() {
       >
         {services[index]}
       </span>
+
     </div>
   )
 }
