@@ -1,63 +1,66 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
-const WORDS = [
-  "SaaS platforms",
-  "analytics dashboards",
-  "monitoring systems",
+const services = [
+  "SaaS-платформы",
+  "аналитические dashboards",
+  "системы мониторинга",
   "internal tools",
 ]
 
+const SHOW_TIME = 2600
+const OUT_TIME = 4160
+
 export default function TypedServices() {
-  const [mounted, setMounted] = useState(false)
   const [index, setIndex] = useState(0)
-  const [subIndex, setSubIndex] = useState(0)
-  const [deleting, setDeleting] = useState(false)
+  const [visible, setVisible] = useState(true)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    setMounted(true)
+    let mounted = true
+
+    const run = () => {
+      timeoutRef.current = setTimeout(() => {
+        if (!mounted) return
+
+        setVisible(false)
+
+        timeoutRef.current = setTimeout(() => {
+          if (!mounted) return
+          setIndex((prev) => (prev + 1) % services.length)
+          setVisible(true)
+          run()
+        }, OUT_TIME)
+      }, SHOW_TIME)
+    }
+
+    run()
+
+    return () => {
+      mounted = false
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
   }, [])
 
-  useEffect(() => {
-    if (!mounted) return
-
-    const current = WORDS[index]
-
-    const timeout = setTimeout(() => {
-
-      if (!deleting && subIndex < current.length) {
-        setSubIndex((v) => v + 1)
-        return
-      }
-
-      if (!deleting && subIndex === current.length) {
-        setTimeout(() => setDeleting(true), 800)
-        return
-      }
-
-      if (deleting && subIndex > 0) {
-        setSubIndex((v) => v - 1)
-        return
-      }
-
-      if (deleting && subIndex === 0) {
-        setDeleting(false)
-        setIndex((v) => (v + 1) % WORDS.length)
-      }
-
-    }, deleting ? 70 : 130)   // ← в 2 раза медленнее
-
-    return () => clearTimeout(timeout)
-
-  }, [subIndex, index, deleting, mounted])
-
-  if (!mounted) return null
-
   return (
-    <span className="typed-text">
-      {WORDS[index].substring(0, subIndex)}
-      <span className="typed-caret">|</span>
-    </span>
+    <div className="relative h-[40px] flex items-center overflow-hidden">
+
+      <span
+        className={[
+          "block whitespace-nowrap text-left",
+          "text-lg md:text-xl lg:text-2xl font-semibold",
+          "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent",
+          "transform-gpu",
+          "transition-all ease-[cubic-bezier(0.19,1,0.22,1)]",
+          visible
+            ? "opacity-100 translate-x-0 blur-0 duration-[900ms]"
+            : "opacity-0 -translate-x-8 blur-[6px] duration-[4160ms]",
+        ].join(" ")}
+      >
+        {services[index]}
+      </span>
+
+    </div>
   )
 }

@@ -273,3 +273,128 @@ body {
 
 /* GW MARQUEE END */
 
+
+/* TYPED TEXT PERFORMANCE */
+
+.typed-text {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.2em;
+}
+
+.typed-caret {
+  display: inline-block;
+  margin-left: 2px;
+  animation: caretBlink 1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed-caret {
+    animation: none;
+  }
+}
+
+
+/* GW HERO ROTATING WORDS */
+
+.gw-rotating-text-wrap {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  min-height: 1.25em;
+  min-width: 18ch;
+}
+
+.gw-rotating-word {
+  grid-area: 1 / 1;
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.gw-word-in {
+  animation: gwWordIn 4800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gw-word-out {
+  animation: gwWordOut 4800ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.gw-gradient-word {
+  background-image: linear-gradient(
+    90deg,
+    #60a5fa 0%,
+    #22d3ee 30%,
+    #8b5cf6 60%,
+    #60a5fa 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation:
+    gwWordIn 4800ms cubic-bezier(0.22, 1, 0.36, 1),
+    gwGradientShift 4s linear infinite;
+}
+
+@keyframes gwWordIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes gwWordOut {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -14px, 0) scale(0.985);
+    filter: blur(10px);
+  }
+}
+
+@keyframes gwGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gw-word-in,
+  .gw-word-out,
+  .gw-gradient-word {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+
+/* HERO ROTATING TEXT SIZE */
+
+.gw-rotating-text-wrap {
+  font-size: clamp(22px, 3.2vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.gw-rotating-word {
+  font-weight: 700;
+}
+

@@ -4,36 +4,46 @@ import TypedServices from "./typed-services"
 const offers = [
   {
     title: "MVP запуск",
-    price: "от $1500",
+    price: "от 290 000 ₽",
     timeline: "1–2 недели",
+    audience: ["стартапов", "проверки гипотезы", "первого запуска"],
     items: [
-      "Лендинг или личный кабинет",
-      "Базовая логика продукта",
-      "Форма заявок / API / база данных",
-      "Подходит для проверки гипотезы",
+      "Быстрый запуск продукта с понятной структурой",
+      "Личный кабинет, лендинг или базовый dashboard",
+      "Форма заявок, API и база данных",
+      "Основа для дальнейшего масштабирования",
     ],
+    cta: "Обсудить MVP",
+    featured: false,
   },
   {
     title: "SaaS-платформа",
-    price: "от $3000",
+    price: "от 790 000 ₽",
     timeline: "2–4 недели",
+    audience: ["SaaS-продуктов", "внутренних систем", "сервисов с ростом"],
     items: [
-      "Авторизация и роли пользователей",
-      "Dashboard, таблицы, фильтры, метрики",
-      "Интеграции, очереди, фоновые задачи",
-      "Запуск на VPS или облаке",
+      "Система пользователей, ролей и доступов",
+      "Dashboard, таблицы, фильтры и аналитика",
+      "Автоматизация процессов и интеграции",
+      "Запуск на VPS или в облаке",
     ],
+    cta: "Обсудить SaaS",
+    featured: true,
+    badge: "Самый популярный",
   },
   {
     title: "Сложная система",
-    price: "индивидуально",
+    price: "от 1 900 000 ₽",
     timeline: "4+ недели",
+    audience: ["аналитических платформ", "monitoring systems", "сложных backend-задач"],
     items: [
-      "Мониторинг, аналитика, crawling",
+      "Мониторинг, аналитика и crawling",
       "Высоконагруженная backend-логика",
       "Архитектура под рост продукта",
       "Поддержка и развитие после релиза",
     ],
+    cta: "Обсудить систему",
+    featured: false,
   },
 ]
 
@@ -59,18 +69,24 @@ const types = [
 const cases = [
   {
     title: "Quant Trading Platform",
-    text: "Платформа тестирования торговых стратегий с параметрами запуска, историческими симуляциями и аналитикой результатов.",
-    image: "/projects/quant-1.png",
+    description:
+      "Платформа тестирования торговых стратегий с параметрами запуска, историческими симуляциями и аналитикой результатов.",
+    image: "/projects/hero-main.jpeg",
+    link: "http://85.198.101.94:4174",
   },
   {
     title: "Competitor Intelligence Platform",
-    text: "Система мониторинга сайтов конкурентов с обнаружением изменений страниц, списком наблюдения и change feed.",
-    image: "/projects/competitor-dashboard.png",
+    description:
+      "Система мониторинга сайтов конкурентов с обнаружением изменений страниц, списком наблюдения и change feed.",
+    image: "/projects/hero-bottom.jpeg",
+    link: "http://85.198.101.94:3002/dashboard",
   },
   {
-    title: "Analytics Platform",
-    text: "Интерфейсы с метриками, графиками, таблицами и сценариями принятия решений на основе данных.",
-    image: "/projects/quant-2.png",
+    title: "Analytics Dashboard",
+    description:
+      "Интерактивная панель аналитики для мониторинга данных, метрик и бизнес-показателей в реальном времени.",
+    image: "/projects/hero-top.jpeg",
+    link: "http://85.198.101.94:4173",
   },
 ]
 
@@ -313,15 +329,69 @@ export default function Site() {
           </div>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {types.map((item) => (
-            <div key={item.title} className="section-card grid-glow p-6">
-              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/25 to-violet-500/25 text-xl">
-                ✦
-              </div>
-              <h3 className="text-2xl font-semibold leading-tight">{item.title}</h3>
-              <p className="mt-4 text-base leading-7 text-white/68">{item.text}</p>
-            </div>
-          ))}
+          
+{types.map((item, index) => {
+  const accents = [
+    {
+      glow: "hover:shadow-[0_20px_60px_rgba(0,220,255,0.18)]",
+      border: "hover:border-cyan-300/30",
+      icon: "bg-cyan-400/15",
+      gradient: "via-cyan-400/80"
+    },
+    {
+      glow: "hover:shadow-[0_20px_60px_rgba(150,120,255,0.18)]",
+      border: "hover:border-violet-300/30",
+      icon: "bg-violet-400/15",
+      gradient: "via-violet-400/80"
+    },
+    {
+      glow: "hover:shadow-[0_20px_60px_rgba(255,170,90,0.18)]",
+      border: "hover:border-orange-300/30",
+      icon: "bg-orange-400/15",
+      gradient: "via-orange-400/80"
+    },
+    {
+      glow: "hover:shadow-[0_20px_60px_rgba(120,200,255,0.18)]",
+      border: "hover:border-blue-300/30",
+      icon: "bg-blue-400/15",
+      gradient: "via-blue-400/80"
+    }
+  ]
+
+  const a = accents[index % accents.length]
+
+  return (
+    <div
+      key={item.title}
+      className={`group section-card grid-glow relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1 ${a.glow} ${a.border}`}
+    >
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${a.gradient} to-transparent`} />
+
+      <div className="mb-5 flex items-center justify-between">
+        <div className={`flex h-14 w-14 items-center justify-center rounded-[20px] border border-white/10 ${a.icon} text-lg text-white`}>
+          ✦
+        </div>
+
+        <div className="text-xs font-medium uppercase tracking-[0.22em] text-white/28">
+          0{index + 1}
+        </div>
+      </div>
+
+      <h3 className="text-[28px] font-semibold leading-[1.06] tracking-[-0.03em] text-white sm:text-[30px]">
+        {item.title}
+      </h3>
+
+      <p className="mt-5 text-[17px] leading-8 text-white/76">
+        {item.text}
+      </p>
+
+      <div className="mt-6 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/58">
+        Product architecture
+      </div>
+    </div>
+  )
+})}
+
         </div>
       </section>
 
@@ -359,25 +429,26 @@ export default function Site() {
           <p className="mt-3 max-w-2xl text-white/65">Реальные интерфейсы проектов, которые показывают уровень UI, архитектуры и продуктового мышления.</p>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          {cases.map((item) => (
-            <article key={item.title} className="section-card grid-glow overflow-hidden">
-              <Image src={item.image} alt={item.title} width={1200} height={760} className="h-56 w-full object-cover object-top" />
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold leading-tight">{item.title}</h3>
-                <p className="mt-4 text-base leading-7 text-white/68">{item.text}</p>
-              </div>
-            </article>
+          {cases.map((project) => (
+            <a
+              key={project.title}
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block"
+            >
+              <article className="section-card grid-glow overflow-hidden transition-transform duration-300 group-hover:scale-[1.01]">
+                <Image src={project.image} alt={project.title} width={1200} height={760} className="h-56 w-full object-cover object-top" />
+                <div className="p-6">
+                  <h3 className="text-2xl font-semibold leading-tight">{project.title}</h3>
+                  <p className="mt-4 text-base leading-7 text-white/68">{project.description}</p>
+                </div>
+              </article>
+            </a>
           ))}
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          {["/projects/competitors.png", "/projects/pages.png", "/projects/changes.png"].map((src, index) => (
-            <div key={src} className="section-card grid-glow overflow-hidden p-3">
-              <Image src={src} alt={`Скриншот платформы ${index + 1}`} width={1200} height={760} className="rounded-2xl" />
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
 
       <section className="container-shell py-10">
         <div className="section-card grid-glow p-8 sm:p-10">
@@ -395,30 +466,94 @@ export default function Site() {
       <section id="offers" className="container-shell py-10 sm:py-14">
         <div className="mb-8">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Форматы работы</h2>
-          <p className="mt-3 max-w-2xl text-white/65">Можно стартовать с MVP, полноценной SaaS-платформы или сложной системы аналитики и мониторинга.</p>
+          <p className="mt-3 max-w-2xl text-white/65">
+            Можно стартовать с MVP, полноценной SaaS-платформы или сложной системы аналитики и мониторинга.
+          </p>
         </div>
+
         <div className="grid gap-6 lg:grid-cols-3">
           {offers.map((offer) => (
-            <div key={offer.title} className="section-card grid-glow p-7">
+            <div
+              key={offer.title}
+              className={[
+                "section-card grid-glow relative overflow-hidden p-7 transition-all duration-300",
+                offer.featured
+                  ? "border-violet-400/40 bg-gradient-to-b from-violet-500/10 to-transparent shadow-[0_24px_80px_rgba(110,80,255,0.18)] lg:-translate-y-2"
+                  : "",
+              ].join(" ")}
+            >
+              {offer.featured && (
+                <div className="mb-5 inline-flex rounded-full border border-violet-300/25 bg-violet-400/15 px-3 py-1 text-xs font-medium text-violet-100">
+                  {offer.badge}
+                </div>
+              )}
+
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-2xl font-semibold">{offer.title}</h3>
+                  <h3 className="text-2xl font-semibold sm:text-[30px]">{offer.title}</h3>
                   <p className="mt-2 text-sm uppercase tracking-[0.24em] text-white/45">{offer.timeline}</p>
                 </div>
-                <div className="rounded-2xl border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm text-blue-100">
+
+                <div
+                  className={[
+                    "rounded-2xl border px-4 py-2 text-sm font-medium",
+                    offer.featured
+                      ? "border-violet-300/30 bg-violet-400/15 text-violet-50 shadow-[0_0_24px_rgba(140,110,255,0.18)]"
+                      : "border-blue-400/20 bg-blue-400/10 text-blue-100",
+                  ].join(" ")}
+                >
                   {offer.price}
                 </div>
               </div>
-              <ul className="mt-6 space-y-3 text-base leading-7 text-white/72">
+
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/4 p-4">
+                <div className="text-sm text-white/48">Подходит для</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {offer.audience.map((entry) => (
+                    <span
+                      key={entry}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/78"
+                    >
+                      {entry}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <ul className="mt-6 space-y-3 text-[15px] leading-7 text-white/78 sm:text-base">
                 {offer.items.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <span className="mt-1 text-cyan-300">•</span>
+                    <span className="mt-[5px] text-cyan-300">✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
+
+              <div className="mt-7 space-y-3">
+                <a
+                  href="https://t.me/max92pole"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={[
+                    "inline-flex w-full items-center justify-center rounded-2xl border px-5 py-3.5 text-base font-medium text-white transition",
+                    offer.featured
+                      ? "border-violet-300/35 bg-gradient-to-r from-blue-500 to-violet-500 shadow-soft hover:scale-[1.01]"
+                      : "border-blue-400/20 bg-blue-400/10 hover:bg-blue-400/15",
+                  ].join(" ")}
+                >
+                  {offer.cta} →
+                </a>
+
+                <div className="text-sm text-white/45">
+                  Подходит для запуска с понятным объёмом работ и возможностью дальнейшего развития.
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-6 text-sm text-white/45">
+          Большинство проектов попадает во второй вариант. Точная стоимость зависит от задач, ролей, интеграций и объёма логики.
         </div>
       </section>
 
@@ -430,10 +565,29 @@ export default function Site() {
             ["3", "Разработка", "Поэтапно собираю продукт: UI, backend, интеграции, фоновые процессы."],
             ["4", "Запуск", "Разворачиваю проект, настраиваю окружение и передаю рабочий результат."],
           ].map(([step, title, text]) => (
-            <div key={step} className="section-card grid-glow p-6">
-              <div className="mb-5 text-4xl font-semibold text-white/25">{step}</div>
-              <h3 className="text-2xl font-semibold">{title}</h3>
-              <p className="mt-4 text-base leading-7 text-white/68">{text}</p>
+            <div
+              key={step}
+              className="group section-card grid-glow relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20 hover:shadow-[0_20px_60px_rgba(46,173,255,0.12)]"
+            >
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/65 to-violet-400/60" />
+              <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-cyan-400/8 blur-3xl opacity-70" />
+
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex h-16 w-16 items-center justify-center rounded-[22px] border border-white/10 bg-white/[0.04] text-3xl font-semibold text-white/72 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                  {step}
+                </div>
+                <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/42">
+                  step
+                </div>
+              </div>
+
+              <h3 className="text-[30px] font-semibold leading-[1.04] tracking-[-0.03em] text-white sm:text-[32px]">
+                {title}
+              </h3>
+
+              <p className="mt-5 text-[17px] leading-8 text-white/76">
+                {text}
+              </p>
             </div>
           ))}
         </div>
@@ -448,7 +602,7 @@ export default function Site() {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <a
-                href="https://t.me/yourtelegram"
+                href="https://t.me/max92pole"
                 className="cta-primary rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-500 to-violet-500 px-6 py-4 text-base font-medium shadow-soft transition hover:scale-[1.02]"
               >
                 Написать в Telegram
