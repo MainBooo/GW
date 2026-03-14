@@ -3,58 +3,74 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://generationweb.ru"),
+
   title: {
-    default: "Разработка SaaS-платформ, MVP и аналитических систем на заказ | GenerationWeb",
-    template: "%s | GenerationWeb",
+    default: "Разработка SaaS платформ и MVP — GenerationWeb",
+    template: "%s — GenerationWeb",
   },
+
   description:
-    "GenerationWeb — разработка SaaS-платформ на заказ: MVP, аналитические dashboard-системы, внутренние сервисы, системы мониторинга, API и сложный backend для бизнеса и стартапов.",
+    "Разработка SaaS-платформ, MVP, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов. Full-stack разработка, backend, frontend и deploy.",
+
   keywords: [
-    "разработка saas платформ",
-    "разработка saas на заказ",
-    "разработка mvp",
+    "разработка SaaS",
+    "разработка SaaS платформ",
+    "разработка MVP",
+    "разработка dashboard",
     "разработка аналитических систем",
-    "dashboard разработка",
-    "разработка внутренних систем",
-    "разработка crm и личных кабинетов",
-    "система мониторинга сайтов",
-    "nextjs nestjs разработка",
-    "разработка веб платформ",
+    "разработка внутренних сервисов",
+    "full-stack разработка",
+    "backend frontend deploy",
+    "monitoring systems",
+    "dashboard systems",
+    "GenerationWeb",
   ],
+
   alternates: {
-    canonical: "https://generationweb.ru",
+    canonical: "/",
   },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   openGraph: {
-    title: "GenerationWeb — разработка SaaS-платформ и аналитических систем",
-    description:
-      "Разработка SaaS-платформ, MVP, dashboard-систем, внутренних сервисов и monitoring products под запуск и рост.",
-    url: "https://generationweb.ru",
-    siteName: "GenerationWeb",
     type: "website",
     locale: "ru_RU",
+    url: "https://generationweb.ru",
+    siteName: "GenerationWeb",
+    title: "Разработка SaaS платформ и MVP — GenerationWeb",
+    description:
+      "Разработка SaaS-платформ, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов. Full-stack разработка и запуск продукта.",
     images: [
       {
-        url: "/projects/hero-main.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "GenerationWeb — разработка SaaS-платформ и аналитических систем",
+        url: "/logo/generationweb-dark.PNG",
+        alt: "GenerationWeb",
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "GenerationWeb — разработка SaaS-платформ и аналитических систем",
+    title: "Разработка SaaS платформ и MVP — GenerationWeb",
     description:
-      "MVP, SaaS, dashboard-системы, внутренние платформы, мониторинг и сложный backend.",
-    images: ["/projects/hero-main.jpeg"],
+      "Разработка SaaS-платформ, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов.",
+    images: ["/logo/generationweb-dark.PNG"],
   },
+
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon.png",
+    shortcut: "/icon.png",
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="ru">
       <body>{children}</body>

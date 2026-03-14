@@ -33,7 +33,7 @@ const offers = [
   },
   {
     title: "Сложная система",
-    price: "от 1 900 000 ₽",
+    price: "от 1,9 млн ₽",
     timeline: "4+ недели",
     audience: ["аналитических платформ", "monitoring systems", "сложных backend-задач"],
     items: [
@@ -70,16 +70,16 @@ const cases = [
   {
     title: "Quant Trading Platform",
     description:
-      "Платформа тестирования торговых стратегий с параметрами запуска, историческими симуляциями и аналитикой результатов.",
-    image: "/projects/hero-main.jpeg",
+      "Платформа тестирования торговых стратегий с историческими симуляциями, параметрами запуска и аналитикой эффективности стратегий.",
+    image: "/projects/hero-top.jpeg",
     link: "https://alfaflow.generationweb.ru",
     domain: "alfaflow.generationweb.ru",
   },
   {
     title: "Competitor Intelligence Platform",
     description:
-      "Система мониторинга сайтов конкурентов с обнаружением изменений страниц, списком наблюдения и feed изменений.",
-    image: "/projects/hero-bottom.jpeg",
+      "SaaS-платформа мониторинга сайтов конкурентов: отслеживание страниц, обнаружение изменений и аналитика активности рынка.",
+    image: "/projects/hero-main.jpeg",
     link: "https://competitor.generationweb.ru",
     domain: "competitor.generationweb.ru",
   },
@@ -87,7 +87,7 @@ const cases = [
     title: "Analytics Dashboard",
     description:
       "Интерактивная аналитическая dashboard-система для мониторинга данных, KPI, метрик и бизнес-показателей в реальном времени.",
-    image: "/projects/hero-top.jpeg",
+    image: "/projects/hero-bottom.jpeg",
     link: "https://dashboard.generationweb.ru",
     domain: "dashboard.generationweb.ru",
   },
@@ -251,8 +251,9 @@ export default function Site() {
             <div>
               <div className="text-lg font-semibold tracking-tight">GenerationWeb</div>
               <div className="text-sm text-white/60">SaaS & Data Platforms</div>
-            </div>
-          </a>
+</div>
+</a>
+
 
           <nav className="hidden items-center gap-8 text-sm text-white/80 md:flex">
             <a href="#services" className="transition hover:text-white">Услуги</a>
@@ -445,8 +446,11 @@ export default function Site() {
                 <div className="p-6">
                   <h3 className="text-2xl font-semibold leading-tight">{project.title}</h3>
                   <p className="mt-4 text-base leading-7 text-white/68">{project.description}</p>
-                  <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/58">
+                  <div className="mt-4 inline-flex rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-xs text-blue-300 transition group-hover:border-blue-300/30 group-hover:text-blue-200">
                     {project.domain}
+                  </div>
+                  <div className="mt-4 text-sm font-medium text-blue-400 transition group-hover:text-blue-300">
+                    Открыть демо →
                   </div>
                 </div>
               </article>
@@ -482,14 +486,14 @@ export default function Site() {
             <div
               key={offer.title}
               className={[
-                "section-card grid-glow relative overflow-hidden p-7 transition-all duration-300",
+                "section-card grid-glow relative overflow-hidden p-7 shadow-[0_10px_40px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(37,99,235,0.14)]",
                 offer.featured
                   ? "border-violet-400/40 bg-gradient-to-b from-violet-500/10 to-transparent shadow-[0_24px_80px_rgba(110,80,255,0.18)] lg:-translate-y-2"
                   : "",
               ].join(" ")}
             >
               {offer.featured && (
-                <div className="mb-5 inline-flex rounded-full border border-violet-300/25 bg-violet-400/15 px-3 py-1 text-xs font-medium text-violet-100">
+                <div className="mb-5 inline-flex rounded-full border border-violet-300/35 bg-violet-400/18 px-4 py-1.5 text-xs font-semibold tracking-tight text-violet-50 shadow-[0_0_28px_rgba(140,110,255,0.22)]">
                   {offer.badge}
                 </div>
               )}
@@ -502,10 +506,10 @@ export default function Site() {
 
                 <div
                   className={[
-                    "rounded-2xl border px-4 py-2 text-sm font-medium",
+                    "whitespace-nowrap rounded-2xl border px-4 py-2 text-sm font-semibold tracking-tight shadow-[0_0_20px_rgba(59,130,246,0.10)]",
                     offer.featured
-                      ? "border-violet-300/30 bg-violet-400/15 text-violet-50 shadow-[0_0_24px_rgba(140,110,255,0.18)]"
-                      : "border-blue-400/20 bg-blue-400/10 text-blue-100",
+                      ? "border-violet-300/35 bg-violet-400/18 text-violet-50 shadow-[0_0_28px_rgba(140,110,255,0.22)]"
+                      : "border-blue-400/30 bg-blue-500/12 text-blue-100",
                   ].join(" ")}
                 >
                   {offer.price}
@@ -602,7 +606,7 @@ export default function Site() {
       <section id="contact" className="container-shell py-12 sm:py-16">
         <div className="section-card grid-glow overflow-hidden px-6 py-10 sm:px-10 sm:py-14">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">Обсудим ваш проект</h2>
+            <h2 className="text-4xl font-semibold tracking-tight sm:text-4xl">Обсудим ваш проект</h2>
             <p className="mt-5 text-lg leading-8 text-white/72">
               Напишите в Telegram, чтобы обсудить разработку SaaS-платформы, MVP, dashboard-системы или внутреннего сервиса. Сориентирую по срокам, стоимости и архитектуре решения.
             </p>
