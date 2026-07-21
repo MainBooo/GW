@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" viewBox="0 0 300 300">
+  <title>GenerationWeb</title>
+  <defs>
+    <linearGradient id="g1" x1="90.7" y1="67.1" x2="39.0" y2="166.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#374863"/>
+      <stop offset="1" stop-color="#2f3c5c"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="39.0" y1="166.6" x2="149.1" y2="149.7" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f3c5c"/>
+      <stop offset="1" stop-color="#e08838"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="90.7" y1="67.1" x2="149.1" y2="149.7" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#374863"/>
+      <stop offset="1" stop-color="#e08838"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="39.0" y1="166.6" x2="97.4" y2="249.2" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f3c5c"/>
+      <stop offset="1" stop-color="#669093"/>
+    </linearGradient>
+    <linearGradient id="g5" x1="97.4" y1="249.2" x2="149.1" y2="149.7" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#669093"/>
+      <stop offset="1" stop-color="#e08838"/>
+    </linearGradient>
+    <linearGradient id="g6" x1="149.1" y1="149.7" x2="202.0" y2="50.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e08838"/>
+      <stop offset="1" stop-color="#da4d40"/>
+    </linearGradient>
+    <linearGradient id="g7" x1="202.0" y1="50.8" x2="260.4" y2="134.0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#da4d40"/>
+      <stop offset="1" stop-color="#df7839"/>
+    </linearGradient>
+    <linearGradient id="g8" x1="149.1" y1="149.7" x2="260.4" y2="134.0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e08838"/>
+      <stop offset="1" stop-color="#df7839"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="300" height="300" fill="#ffffff"/>
+
+  <g fill="none" stroke-width="7" stroke-linecap="round">
+    <line x1="90.7" y1="67.1" x2="39.0" y2="166.6" stroke="url(#g1)"/>
+    <line x1="39.0" y1="166.6" x2="149.1" y2="149.7" stroke="url(#g2)"/>
+    <line x1="90.7" y1="67.1" x2="149.1" y2="149.7" stroke="url(#g3)"/>
+    <line x1="39.0" y1="166.6" x2="97.4" y2="249.2" stroke="url(#g4)"/>
+    <line x1="97.4" y1="249.2" x2="149.1" y2="149.7" stroke="url(#g5)"/>
+    <line x1="149.1" y1="149.7" x2="202.0" y2="50.8" stroke="url(#g6)"/>
+    <line x1="202.0" y1="50.8" x2="260.4" y2="134.0" stroke="url(#g7)"/>
+    <line x1="149.1" y1="149.7" x2="260.4" y2="134.0" stroke="url(#g8)"/>
+  </g>
+
+  <g>
+    <circle cx="90.7" cy="67.1" r="10" fill="#374863"/>
+    <circle cx="39.0" cy="166.6" r="10" fill="#2f3c5c"/>
+    <circle cx="149.1" cy="149.7" r="10" fill="#e08838"/>
+    <circle cx="97.4" cy="249.2" r="10" fill="#669093"/>
+    <circle cx="202.0" cy="50.8" r="10" fill="#da4d40"/>
+    <circle cx="260.4" cy="134.0" r="10" fill="#df7839"/>
+  </g>
+</svg>

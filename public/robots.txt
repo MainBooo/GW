@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Host: generationweb.ru
+
+Sitemap: https://generationweb.ru/sitemap.xml
+
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content

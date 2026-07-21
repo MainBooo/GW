@@ -1,33 +1,25 @@
 import type { Metadata } from "next"
 import "./globals.css"
 
+const title = "AI-системы и веб-продукты для бизнеса — GenerationWeb"
+const description =
+  "Проектируем и разрабатываем AI-агентов, SaaS-платформы, внутренние системы и современные веб-приложения. Реальные кейсы: Growth Engine, ReputationOS."
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://generationweb.ru"),
 
   title: {
-    default: "Разработка SaaS платформ и MVP — GenerationWeb",
+    default: title,
     template: "%s — GenerationWeb",
   },
 
-  description:
-    "Разработка SaaS-платформ, MVP, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов. Full-stack разработка, backend, frontend и deploy.",
-
-  keywords: [
-    "разработка SaaS",
-    "разработка SaaS платформ",
-    "разработка MVP",
-    "разработка dashboard",
-    "разработка аналитических систем",
-    "разработка внутренних сервисов",
-    "full-stack разработка",
-    "backend frontend deploy",
-    "monitoring systems",
-    "dashboard systems",
-    "GenerationWeb",
-  ],
+  description,
 
   alternates: {
     canonical: "/",
+    languages: {
+      "ru-RU": "/",
+    },
   },
 
   robots: {
@@ -35,14 +27,19 @@ export const metadata: Metadata = {
     follow: true,
   },
 
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
+
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: "https://generationweb.ru",
     siteName: "GenerationWeb",
-    title: "Разработка SaaS платформ и MVP — GenerationWeb",
-    description:
-      "Разработка SaaS-платформ, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов. Full-stack разработка и запуск продукта.",
+    title,
+    description,
     images: [
       {
         url: "/logo/generationweb-dark.PNG",
@@ -53,26 +50,42 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Разработка SaaS платформ и MVP — GenerationWeb",
-    description:
-      "Разработка SaaS-платформ, аналитических dashboard-систем, систем мониторинга и внутренних бизнес-сервисов.",
+    title: "GenerationWeb",
+    description: "AI-агенты, SaaS-платформы, внутренние системы и веб-приложения.",
     images: ["/logo/generationweb-dark.PNG"],
   },
+}
 
-  icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
-    shortcut: "/icon.png",
-  },
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "GenerationWeb",
+  description,
+  url: "https://generationweb.ru",
+  image: "https://generationweb.ru/logo/generationweb-dark.PNG",
+  areaServed: "RU",
+  sameAs: ["https://t.me/max92pole"],
+  makesOffer: [
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI-системы и AI-агенты" } },
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "SaaS и внутренние бизнес-платформы" } },
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Современные веб-приложения" } },
+  ],
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="ru">
+      <head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   )
