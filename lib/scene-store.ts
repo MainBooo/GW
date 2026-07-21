@@ -45,6 +45,17 @@ export const CHECKPOINT_ORDER: CheckpointName[] = [
   "portal",
 ]
 
+// Shared timing budget for the TechMap -> FinalCta handoff: tech nodes must
+// reach opacity 0 (ECOSYSTEM_EXIT_FADE) before the CTA card starts fading in
+// (FINAL_CTA_ENTER_START), with a small buffer between them to absorb the one
+// frame of lerp lag in TechMapNodes' opacity smoothing. Both scenes read the
+// same sceneState.progress value while FinalCta is the active track, so
+// driving both animations off these constants guarantees no visual overlap
+// regardless of scroll speed or how the section was entered.
+export const ECOSYSTEM_EXIT_FADE = 0.16
+export const FINAL_CTA_ENTER_START = 0.22
+export const FINAL_CTA_ENTER_END = 0.38
+
 type Vec3 = { x: number; y: number; z: number }
 
 export const sceneState = {

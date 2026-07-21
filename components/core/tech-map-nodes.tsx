@@ -4,17 +4,17 @@ import { useMemo, useRef } from "react"
 import * as THREE from "three"
 import { Html } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { sceneState } from "@/lib/scene-store"
+import { ECOSYSTEM_EXIT_FADE, sceneState } from "@/lib/scene-store"
 import { TECH_CATEGORIES } from "@/components/core/shapes"
 
 function ecosystemBlend(): number {
   const a = sceneState.checkpointA === "ecosystem"
   const b = sceneState.checkpointB === "ecosystem"
   if (a && b) return 1
-  // Fade 3x faster than the raw segment progress so the tech nodes are fully gone
-  // well before the neighbouring section's own content (e.g. the final CTA card)
-  // is on screen, instead of lingering faded-in behind it for the whole segment.
-  if (a && !b) return Math.max(0, 1 - sceneState.progress * 3)
+  // Reach 0 at ECOSYSTEM_EXIT_FADE so the tech nodes are fully gone before the
+  // neighbouring section's own content (the final CTA card, gated on the same
+  // constant) starts fading in -- see the comment next to the constant.
+  if (a && !b) return Math.max(0, 1 - sceneState.progress / ECOSYSTEM_EXIT_FADE)
   if (!a && b) return Math.min(1, sceneState.progress * 3)
   return 0
 }
@@ -49,6 +49,9 @@ export function TechMapNodes() {
       const scale = hover === i ? 1.08 : 1
       el.style.opacity = String(visible ? groupOpacity.current * dim : 0)
       el.style.transform = `scale(${scale})`
+      // Faded-out nodes must not intercept clicks/hover meant for whatever the
+      // next section renders in the same screen space (e.g. the final CTA card).
+      el.style.pointerEvents = visible ? "auto" : "none"
     })
 
     lines.forEach((line, i) => {
@@ -76,8 +79,8 @@ export function TechMapNodes() {
             onMouseLeave={() => {
               sceneState.techHoverIndex = null
             }}
-            className="pointer-events-auto w-44 cursor-default rounded-2xl border border-white/10 bg-background/75 px-3.5 py-3 text-center backdrop-blur-md transition-transform duration-200"
-            style={{ opacity: 0 }}
+            className="w-44 cursor-default rounded-2xl border border-white/10 bg-background/75 px-3.5 py-3 text-center backdrop-blur-md transition-transform duration-200"
+            style={{ opacity: 0, pointerEvents: "none" }}
             data-cursor-el
           >
             <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-secondary/85">{cat.label}</div>
