@@ -48,12 +48,16 @@ function PageContent() {
       ref={ref}
       className="transition-[transform,filter] duration-300 ease-out-soft"
       style={{
-        transform: panelOpen ? "scale(0.97)" : "scale(1)",
-        filter: panelOpen ? "brightness(0.7) blur(1px)" : "brightness(1)",
+        // "none" (not "scale(1)") when at rest: any non-none transform on an
+        // ancestor becomes the containing block for position:fixed descendants
+        // (the floating header), which would otherwise silently stop tracking
+        // the real viewport and scroll away with the page.
+        transform: panelOpen ? "scale(0.97)" : "none",
+        filter: panelOpen ? "brightness(0.7) blur(1px)" : "none",
       }}
       aria-hidden={panelOpen}
     >
-      <main className="relative z-10 overflow-x-hidden bg-transparent text-white">
+      <main className="relative z-10 overflow-x-clip bg-transparent text-white">
         <Header />
         <Hero />
         <DataTicker />

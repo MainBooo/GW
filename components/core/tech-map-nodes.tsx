@@ -11,8 +11,11 @@ function ecosystemBlend(): number {
   const a = sceneState.checkpointA === "ecosystem"
   const b = sceneState.checkpointB === "ecosystem"
   if (a && b) return 1
-  if (a && !b) return 1 - sceneState.progress
-  if (!a && b) return sceneState.progress
+  // Fade 3x faster than the raw segment progress so the tech nodes are fully gone
+  // well before the neighbouring section's own content (e.g. the final CTA card)
+  // is on screen, instead of lingering faded-in behind it for the whole segment.
+  if (a && !b) return Math.max(0, 1 - sceneState.progress * 3)
+  if (!a && b) return Math.min(1, sceneState.progress * 3)
   return 0
 }
 

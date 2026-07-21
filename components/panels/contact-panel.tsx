@@ -8,7 +8,7 @@ const PROJECT_TYPES = ["AI-агент / мультиагентная систе�
 
 const SYSTEM_TAGS = ["CHANNEL OPEN", "PROJECT INPUT READY", "RESPONSE TIME: AS SOON AS POSSIBLE"]
 
-type SubmitState = "idle" | "sent" | "blocked"
+type SubmitState = "idle" | "sent"
 
 export function ContactPanel() {
   const { closePanel } = usePanel()
@@ -37,8 +37,13 @@ export function ContactPanel() {
     const url = buildUrl()
     setLastUrl(url)
 
-    const win = window.open(url, "_blank", "noopener,noreferrer")
-    setState(win ? "sent" : "blocked")
+    // `noopener` (kept intentionally — the opened tab shouldn't be able to reach back
+    // into window.opener) makes window.open() return null on success too, so its
+    // return value can't distinguish "opened" from "popup blocked". We can't claim
+    // confirmed delivery either way, so the next screen stays honestly hedged and
+    // always offers the manual link rather than asserting a success we can't verify.
+    window.open(url, "_blank", "noopener,noreferrer")
+    setState("sent")
   }
 
   if (state === "sent") {
@@ -48,8 +53,18 @@ export function ContactPanel() {
           <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent">REQUEST RECEIVED</div>
           <h3 className="text-2xl font-semibold text-white">Мы с вами свяжемся</h3>
           <p className="text-white/60">
-            Telegram открылся в новой вкладке с готовым сообщением. Отправьте его — отвечаю обычно в течение дня.
+            Telegram должен был открыться в новой вкладке с готовым сообщением. Отправьте его — отвечаю обычно в течение дня.
           </p>
+          {lastUrl && (
+            <a
+              href={lastUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-white/70 underline-offset-4 hover:underline"
+            >
+              Вкладка не открылась? Открыть Telegram вручную →
+            </a>
+          )}
           <button
             type="button"
             onClick={closePanel}
@@ -149,17 +164,6 @@ export function ContactPanel() {
               className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/30 outline-none transition focus:border-primary/50"
             />
           </label>
-
-          {state === "blocked" && (
-            <div className="sm:col-span-2 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-              Браузер заблокировал всплывающее окно.{" "}
-              {lastUrl && (
-                <a href={lastUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
-                  Открыть Telegram вручную →
-                </a>
-              )}
-            </div>
-          )}
 
           <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
             <button

@@ -23,8 +23,6 @@ export function GrowthEngineScene() {
 
   useSceneTrack(sectionRef, {
     steps: ["network", "pipeline-0", "pipeline-1", "pipeline-2", "pipeline-3", "pipeline-4", "pipeline-5", "pipeline-6", "screen"],
-    pin: true,
-    disablePin: isMobile,
     start: "top top",
     end: "bottom bottom",
     onUpdate: (progress) => {
@@ -34,7 +32,9 @@ export function GrowthEngineScene() {
         introRef.current.style.transform = `translate3d(0, ${t * -20}px, 0)`
       }
       if (revealRef.current) {
-        const t = Math.max(0, Math.min(1, (progress - 0.86) / 0.14))
+        // 8 equal WebGL segments (network -> 6 nodes -> screen) means the "screen"
+        // shape lands at 7/8 = 0.875 of progress; start the DOM reveal right there.
+        const t = Math.max(0, Math.min(1, (progress - 0.875) / 0.1))
         revealRef.current.style.opacity = String(t)
         revealRef.current.style.transform = `translate3d(0, ${(1 - t) * 30}px, 0) scale(${0.96 + t * 0.04})`
         revealRef.current.style.pointerEvents = t > 0.5 ? "auto" : "none"

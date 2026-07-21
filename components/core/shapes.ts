@@ -229,10 +229,10 @@ export type TechCategory = {
 }
 
 export const TECH_CATEGORIES: TechCategory[] = [
-  { key: "frontend", label: "Frontend", items: ["Next.js", "React", "TypeScript"], pos: { x: 0, y: 3.4, z: 0 } },
+  { key: "frontend", label: "Frontend", items: ["Next.js", "React", "TypeScript"], pos: { x: 0, y: 2.5, z: 0 } },
   { key: "backend", label: "Backend", items: ["NestJS", "Node.js", "REST API"], pos: { x: 3.1, y: 1.6, z: 0.6 } },
   { key: "data", label: "Data", items: ["PostgreSQL", "Prisma", "Redis"], pos: { x: 3.1, y: -1.8, z: -0.6 } },
-  { key: "infra", label: "Infrastructure", items: ["Docker", "PM2", "BullMQ", "Linux"], pos: { x: 0, y: -3.5, z: 0 } },
+  { key: "infra", label: "Infrastructure", items: ["Docker", "PM2", "BullMQ", "Linux"], pos: { x: 0, y: -2.8, z: 0 } },
   { key: "automation", label: "Automation", items: ["Playwright", "Background workers", "Schedulers"], pos: { x: -3.1, y: -1.6, z: 0.6 } },
   { key: "ai", label: "AI", items: ["LLM API", "RAG", "AI agents", "Structured outputs"], pos: { x: -3.1, y: 1.8, z: -0.6 } },
 ]

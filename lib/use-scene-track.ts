@@ -12,13 +12,10 @@ if (typeof window !== "undefined") {
 
 export type SceneTrackOptions = {
   steps: CheckpointName[]
-  pin?: boolean
-  pinSpacing?: boolean
   start?: string
   end?: string
   scrub?: boolean | number
   onUpdate?: (progress: number, stepIndex: number, stepLocalT: number) => void
-  disablePin?: boolean
 }
 
 export function useSceneTrack(triggerRef: RefObject<HTMLElement | null>, options: SceneTrackOptions) {
@@ -49,22 +46,28 @@ export function useSceneTrack(triggerRef: RefObject<HTMLElement | null>, options
       return
     }
 
-    const usePin = (options.pin ?? false) && !options.disablePin
+    // A ScrollTrigger fires onRefresh for every section at once on page load/resize,
+    // each reporting its own progress — a section far below the current scroll
+    // position still reports progress 0, which is indistinguishable from "just
+    // entered". Only apply state for a section that's actually active or already
+    // scrolled past (progress > 0); otherwise an unrelated section below the fold
+    // clobbers whichever section is genuinely on screen.
+    const maybeApply = (self: ScrollTrigger) => {
+      if (self.isActive || self.progress > 0) applyProgress(self.progress)
+    }
 
     const st = ScrollTrigger.create({
       trigger: el,
       start: options.start ?? "top top",
       end: options.end ?? "bottom bottom",
-      pin: usePin,
-      pinSpacing: options.pinSpacing ?? true,
       scrub: options.scrub ?? true,
-      onUpdate: (self) => applyProgress(self.progress),
-      onRefresh: (self) => applyProgress(self.progress),
+      onUpdate: (self) => maybeApply(self),
+      onRefresh: (self) => maybeApply(self),
     })
 
     return () => {
       st.kill()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [triggerRef, stepsKey, options.pin, options.disablePin, options.start, options.end])
+  }, [triggerRef, stepsKey, options.start, options.end])
 }

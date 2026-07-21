@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 
 export function ScrollReveal({
@@ -15,14 +15,19 @@ export function ScrollReveal({
   y?: number
 }) {
   const prefersReducedMotion = useReducedMotion()
+  // Stay in the "animated" branch until mounted so the first client render matches
+  // the server's, regardless of the visitor's OS-level reduced-motion setting.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const reduced = mounted && prefersReducedMotion
 
   return (
     <motion.div
       className={className}
-      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: prefersReducedMotion ? 0 : 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: reduced ? 0 : 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>

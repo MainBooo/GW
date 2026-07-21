@@ -7,6 +7,7 @@ import { MouseTracker } from "@/components/core/mouse-tracker"
 import { FallbackCanvas2D } from "@/components/core/fallback-canvas2d"
 import { detectDeviceTier, PARTICLE_COUNTS, type DeviceTier } from "@/lib/device-tier"
 import { sceneState } from "@/lib/scene-store"
+import { useActiveRegion } from "@/lib/use-active-region"
 
 function VisibilityPause() {
   useEffect(() => {
@@ -42,6 +43,8 @@ export default function GenerationCoreCanvas({ onReady }: { onReady?: () => void
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tier])
 
+  const activeRegion = useActiveRegion()
+
   if (tier === null) return null
   if (tier === "static") return <FallbackCanvas2D />
 
@@ -60,7 +63,7 @@ export default function GenerationCoreCanvas({ onReady }: { onReady?: () => void
         }}
       >
         <VisibilityPause />
-        <CoreScene count={PARTICLE_COUNTS[tier]} />
+        <CoreScene count={PARTICLE_COUNTS[tier]} activeRegion={activeRegion} />
       </Canvas>
       <MouseTracker enabled={!isCoarse} />
     </div>

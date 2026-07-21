@@ -5,7 +5,10 @@ import { services } from "@/lib/content"
 import { usePanel } from "@/lib/panel-context"
 import { useSceneTrack } from "@/lib/use-scene-track"
 
-const THRESHOLDS = [0.12, 0.38, 0.62, 0.84]
+// GSAP's `progress` (start "top top" / end "bottom bottom") already spans exactly
+// the CSS-sticky "stuck window", so 0..1 here is the full usable range — just leave
+// a little headroom before 1 so the last item isn't still fading in as it releases.
+const THRESHOLDS = [0.05, 0.28, 0.51, 0.74]
 
 export function ChaosToSystem() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -26,7 +29,7 @@ export function ChaosToSystem() {
       itemRefs.current.forEach((el, i) => {
         if (!el) return
         const threshold = THRESHOLDS[i]
-        const t = Math.max(0, Math.min(1, (progress - threshold) / 0.14))
+        const t = Math.max(0, Math.min(1, (progress - threshold) / 0.18))
         el.style.opacity = String(t)
         el.style.transform = `translate3d(${(1 - t) * (i % 2 === 0 ? -18 : 18)}px, 0, 0)`
       })

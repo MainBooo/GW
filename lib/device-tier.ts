@@ -34,7 +34,7 @@ export function detectDeviceTier(): DeviceTier {
 }
 
 export const PARTICLE_COUNTS: Record<DeviceTier, number> = {
-  full: 9000,
-  lite: 1800,
+  full: 6000,
+  lite: 1600,
   static: 0,
 }

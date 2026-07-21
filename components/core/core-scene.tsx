@@ -5,8 +5,9 @@ import { ParticleField } from "@/components/core/particle-field"
 import { Connections } from "@/components/core/connections"
 import { PipelineLabels } from "@/components/core/pipeline-labels"
 import { TechMapNodes } from "@/components/core/tech-map-nodes"
+import type { ActiveRegion } from "@/lib/use-active-region"
 
-export function CoreScene({ count }: { count: number }) {
+export function CoreScene({ count, activeRegion }: { count: number; activeRegion: ActiveRegion }) {
   return (
     <>
       <CameraRig />
@@ -14,8 +15,8 @@ export function CoreScene({ count }: { count: number }) {
       <ambientLight intensity={0.15} />
       <ParticleField count={count} />
       <Connections />
-      <PipelineLabels />
-      <TechMapNodes />
+      {activeRegion === "pipeline" && <PipelineLabels />}
+      {activeRegion === "tech" && <TechMapNodes />}
     </>
   )
 }

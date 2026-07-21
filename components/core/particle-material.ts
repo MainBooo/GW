@@ -33,8 +33,9 @@ export const vertexShader = /* glsl */ `
     pos.xy += normalize(toMouse + 0.0001) * repel * 0.6;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-    float sizeAttenuation = 320.0 / max(0.001, -mvPosition.z);
-    gl_PointSize = uSize * uPixelRatio * sizeAttenuation * (0.75 + 0.5 * fract(aSeed * 91.7));
+    float sizeAttenuation = 22.0 / max(1.0, -mvPosition.z);
+    float pointSize = uSize * uPixelRatio * sizeAttenuation * (0.75 + 0.5 * fract(aSeed * 91.7));
+    gl_PointSize = clamp(pointSize, 1.0, 48.0);
     gl_Position = projectionMatrix * mvPosition;
 
     vSeed = aSeed;
@@ -81,7 +82,7 @@ export function createParticleMaterial(color: THREE.ColorRepresentation) {
       uMouse: { value: new THREE.Vector2(0, 0) },
       uMouseInfluence: { value: 1 },
       uPixelRatio: { value: 1 },
-      uSize: { value: 6 },
+      uSize: { value: 3 },
       uColor: { value: new THREE.Color(color) },
       uOpacity: { value: 0.9 },
     },
