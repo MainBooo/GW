@@ -16,8 +16,8 @@ const STAGES = [
 const THRESHOLDS = [0.08, 0.3, 0.52, 0.72]
 
 const SHOTS = [
-  { ...reputationOsScreens[0], pos: "left-[2%] top-[10%] w-[70%]", rot: "rotateY(-7deg) rotateX(2deg)", z: 20 },
-  { ...reputationOsScreens[1], pos: "right-[4%] bottom-[8%] w-[56%]", rot: "rotateY(6deg) rotateX(-2deg)", z: 15 },
+  { ...reputationOsScreens[0], pos: "left-[2%] top-[3%] w-[42%] sm:top-[10%] sm:w-[70%]", rot: "rotateY(-7deg) rotateX(2deg)", z: 20 },
+  { ...reputationOsScreens[1], pos: "right-[4%] bottom-[5%] w-[34%] sm:bottom-[8%] sm:w-[56%]", rot: "rotateY(6deg) rotateX(-2deg)", z: 15 },
 ]
 
 export function ReputationOsScene() {
@@ -52,24 +52,24 @@ export function ReputationOsScene() {
   })
 
   return (
-    <section ref={sectionRef} id="reputationos" className="relative scroll-mt-[94px]" style={{ height: "280vh" }}>
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden pt-[94px] sm:pt-0">
+    <section ref={sectionRef} id="reputationos" className="relative scroll-mt-[80px]" style={{ height: "280vh" }}>
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden pt-[80px] sm:pt-0">
         <div ref={headingRef} className="container-shell relative z-10 max-w-2xl text-center opacity-0">
           <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent/70">Кейс · SaaS-платформа</div>
-          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-white sm:text-5xl">REPUTATIONOS</h2>
-          <p className="mx-auto mt-5 text-[16px] leading-7 text-white/65">
+          <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] text-white sm:mt-4 sm:text-5xl">REPUTATIONOS</h2>
+          <p className="mx-auto mt-4 text-[16px] leading-7 text-white/65">
             Платформа мониторинга отзывов и упоминаний с единым inbox, аналитикой, уведомлениями и
             AI-черновиками ответов.
           </p>
 
-          <div className="mt-8 grid grid-cols-2 gap-3 text-left sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-2 text-left sm:mt-8 sm:gap-3 sm:grid-cols-4">
             {STAGES.map((stage, i) => (
               <div
                 key={stage.title}
                 ref={(el) => {
                   stageRefs.current[i] = el
                 }}
-                className="rounded-2xl border border-white/10 bg-background/55 p-3 opacity-0 backdrop-blur-sm"
+                className="rounded-2xl border border-white/10 bg-background/55 p-2.5 opacity-0 backdrop-blur-sm sm:p-3"
               >
                 <div className="font-mono text-[10px] text-accent/80">{String(i + 1).padStart(2, "0")}</div>
                 <div className="mt-1 text-sm font-semibold text-white">{stage.title}</div>
@@ -82,7 +82,7 @@ export function ReputationOsScene() {
             type="button"
             onClick={() => openPanel("reputationos")}
             data-cursor-el
-            className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent/10 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-accent/15"
+            className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent/10 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-accent/15 sm:mt-8"
           >
             Открыть кейс
             <span aria-hidden="true">→</span>
@@ -91,7 +91,7 @@ export function ReputationOsScene() {
 
         <div
           ref={shotsRef}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[46vh] opacity-0 sm:h-[52vh]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[13vh] opacity-0 sm:h-[52vh]"
         >
           <div className="container-shell relative mx-auto h-full max-w-4xl">
             {SHOTS.map((shot) => (

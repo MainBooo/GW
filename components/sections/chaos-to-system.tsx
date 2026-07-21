@@ -3,6 +3,7 @@
 import { useRef } from "react"
 import { services } from "@/lib/content"
 import { usePanel } from "@/lib/panel-context"
+import { useIsMobile } from "@/lib/use-media-query"
 import { useSceneTrack } from "@/lib/use-scene-track"
 
 // GSAP's `progress` (start "top top" / end "bottom bottom") already spans exactly
@@ -15,6 +16,7 @@ export function ChaosToSystem() {
   const headingRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
   const { openPanel } = usePanel()
+  const isMobile = useIsMobile()
 
   useSceneTrack(sectionRef, {
     steps: ["stream", "chaos", "network"],
@@ -37,8 +39,19 @@ export function ChaosToSystem() {
   })
 
   return (
-    <section ref={sectionRef} id="services" className="relative" style={{ height: "220vh" }}>
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      id="services"
+      className="relative"
+      style={{ height: isMobile ? "auto" : "220vh" }}
+    >
+      <div
+        className={
+          isMobile
+            ? "relative flex flex-col justify-center py-24"
+            : "sticky top-0 flex h-screen flex-col justify-center overflow-hidden"
+        }
+      >
         <div className="container-shell relative z-10">
           <div ref={headingRef} className="mx-auto max-w-3xl text-center">
             <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-secondary/70">01–04 · Направления</div>
