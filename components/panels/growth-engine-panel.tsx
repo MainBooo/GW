@@ -3,7 +3,6 @@
 import Image from "next/image"
 import { usePanel } from "@/lib/panel-context"
 import { PanelShell } from "@/components/panels/panel-shell"
-import { PipelineAnimation } from "@/components/pipeline/pipeline-animation"
 import { AnimatedCounter } from "@/components/effects/animated-counter"
 import { growthEngineScreens } from "@/lib/content"
 
@@ -12,6 +11,15 @@ const stats = [
   { value: 24, suffix: "", label: "кампаний запущено" },
   { value: 42.9, suffix: "%", label: "конверсия в оценённые", decimals: 1 },
   { value: 54.4, suffix: "", label: "средний score", decimals: 1 },
+]
+
+const stages = [
+  { title: "Campaign", text: "Оператор задаёт цель поиска и ограничения" },
+  { title: "Planner", text: "Строит план источников и поисковых запросов" },
+  { title: "Lead Hunter", text: "Обходит источники и собирает компании" },
+  { title: "Research Agent", text: "Исследует сайт и специализацию компании" },
+  { title: "Scoring Agent", text: "Оценивает соответствие предложению" },
+  { title: "Contact Enrichment", text: "Находит контакты для первого обращения" },
 ]
 
 export function GrowthEnginePanel() {
@@ -27,7 +35,17 @@ export function GrowthEnginePanel() {
 
       <div className="mt-8">
         <h3 className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-white/40">Pipeline</h3>
-        <PipelineAnimation />
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {stages.map((stage, index) => (
+            <div key={stage.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">
+                {index + 1}
+              </div>
+              <div className="mt-2 text-sm font-semibold text-white">{stage.title}</div>
+              <p className="mt-1 text-xs leading-5 text-white/55">{stage.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">

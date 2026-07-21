@@ -5,9 +5,10 @@ import { PanelShell } from "@/components/panels/panel-shell"
 
 const links = [
   { href: "#services", label: "Услуги" },
-  { href: "#cases", label: "Кейсы" },
+  { href: "#growth-engine", label: "Growth Engine" },
+  { href: "#reputationos", label: "ReputationOS" },
   { href: "#process", label: "Процесс" },
-  { href: "#tech", label: "Технологии" },
+  { href: "#contact", label: "Контакты" },
 ]
 
 export function MobileMenuPanel() {
