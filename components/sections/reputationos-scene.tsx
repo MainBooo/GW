@@ -16,8 +16,8 @@ const STAGES = [
 const THRESHOLDS = [0.08, 0.3, 0.52, 0.72]
 
 const SHOTS = [
-  { ...reputationOsScreens[0], pos: "left-[2%] top-[10%] w-[58%]", rot: "rotateY(-7deg) rotateX(2deg)", z: 20 },
-  { ...reputationOsScreens[1], pos: "right-[4%] bottom-[8%] w-[46%]", rot: "rotateY(6deg) rotateX(-2deg)", z: 15 },
+  { ...reputationOsScreens[0], pos: "left-[2%] top-[10%] w-[70%]", rot: "rotateY(-7deg) rotateX(2deg)", z: 20 },
+  { ...reputationOsScreens[1], pos: "right-[4%] bottom-[8%] w-[56%]", rot: "rotateY(6deg) rotateX(-2deg)", z: 15 },
 ]
 
 export function ReputationOsScene() {
@@ -52,8 +52,8 @@ export function ReputationOsScene() {
   })
 
   return (
-    <section ref={sectionRef} id="reputationos" className="relative" style={{ height: "280vh" }}>
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden">
+    <section ref={sectionRef} id="reputationos" className="relative scroll-mt-[94px]" style={{ height: "280vh" }}>
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden pt-[94px] sm:pt-0">
         <div ref={headingRef} className="container-shell relative z-10 max-w-2xl text-center opacity-0">
           <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent/70">Кейс · SaaS-платформа</div>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-white sm:text-5xl">REPUTATIONOS</h2>
@@ -69,11 +69,11 @@ export function ReputationOsScene() {
                 ref={(el) => {
                   stageRefs.current[i] = el
                 }}
-                className="rounded-2xl border border-white/10 bg-background/40 p-3 opacity-0 backdrop-blur-sm"
+                className="rounded-2xl border border-white/10 bg-background/55 p-3 opacity-0 backdrop-blur-sm"
               >
                 <div className="font-mono text-[10px] text-accent/80">{String(i + 1).padStart(2, "0")}</div>
                 <div className="mt-1 text-sm font-semibold text-white">{stage.title}</div>
-                <p className="mt-1 text-[11px] leading-4 text-white/55">{stage.text}</p>
+                <p className="mt-1 text-[11px] leading-4 text-white/68 [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">{stage.text}</p>
               </div>
             ))}
           </div>

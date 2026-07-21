@@ -53,7 +53,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-[560px] text-[16px] leading-[1.65] text-white/70 sm:text-[18px]">
+          <p className="mx-auto mt-6 max-w-[560px] text-[16px] leading-[1.65] text-white/80 [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-[18px]">
             Проектируем AI-агентов, SaaS-платформы, внутренние системы и
             веб-приложения — от архитектуры до запуска.
           </p>

@@ -49,8 +49,8 @@ export function FinalCta() {
   })
 
   return (
-    <section ref={sectionRef} id="contact" className="relative" style={{ height: "180vh" }}>
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+    <section ref={sectionRef} id="contact" className="relative scroll-mt-[94px]" style={{ height: "180vh" }}>
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden pt-[94px] sm:pt-0">
         <div className="container-shell relative z-10">
           <div
             ref={cardRef}
