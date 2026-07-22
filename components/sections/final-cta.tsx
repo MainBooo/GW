@@ -63,7 +63,7 @@ export function FinalCta() {
               Расскажите про задачу — AI-агент, SaaS-платформа, внутренняя система или веб-приложение.
               Сориентирую по срокам, стоимости и архитектуре решения.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-8 flex flex-col items-center justify-center gap-5 sm:flex-row sm:gap-4">
               <MagneticButton
                 onClick={() => openPanel("contact")}
                 className="cta-primary rounded-2xl border border-primary/30 bg-gradient-to-r from-primary to-secondary px-6 py-4 text-base font-medium text-white shadow-soft"

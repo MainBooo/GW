@@ -47,7 +47,14 @@ export function MagneticButton({
   }
 
   const Inner = href ? (
-    <a href={href} target={target} rel={rel} onClick={onClick} aria-label={ariaLabel} className={className}>
+    <a
+      href={href}
+      target={target}
+      rel={rel}
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={`inline-flex items-center justify-center ${className ?? ""}`}
+    >
       {children}
     </a>
   ) : (
