@@ -59,7 +59,7 @@ export function CasePage({ entry, prev, next }: { entry: CaseEntry; prev: CaseEn
               <Row term="Техника" value={entry.technique} />
               <Row term="Что решает" value={entry.problem} />
               <Row term="Сроки" value={entry.timeframe} />
-              <Row term="Ассеты" value={entry.codeOnly} />
+              <Row term="Основа" value={entry.basis} />
             </dl>
 
             <div>

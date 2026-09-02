@@ -4,7 +4,7 @@ import { CasesIndex } from "@/components/cases/cases-index"
 export const metadata: Metadata = {
   title: "Кейсы",
   description:
-    "Интерактивные WebGL-сцены: GPU-симуляция миллиона частиц, SDF ray marching со стеклом и визуализация рыночных данных. Всё построено кодом, без импортированных моделей и текстур.",
+    "Кейсы GenerationWeb: работающие продукты и интерактивные 3D-сцены. 3D-сцены и модели создаются специально под наши продукты — в основе каждого кейса реальные интерфейсы, данные и работающие системы.",
   alternates: { canonical: "/cases" },
 }
 

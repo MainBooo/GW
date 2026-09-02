@@ -29,11 +29,11 @@ export function CasesShowcase() {
           <div>
             <p className="text-[11px] uppercase tracking-[0.14em] text-accent">Кейсы</p>
             <h2 className="mt-3 max-w-2xl text-balance text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
-              Интерактивная графика, построенная целиком кодом
+              Работающие продукты и графика, сделанная под них
             </h2>
             <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/55">
-              Вычисления на GPU, знаковые поля расстояния и процедурная геометрия по реальным данным.
-              Без импортированных моделей и готовых текстур.
+              3D-сцены и модели создаются специально под наши продукты. В основе каждого кейса —
+              реальные интерфейсы, данные и работающие системы.
             </p>
           </div>
 
