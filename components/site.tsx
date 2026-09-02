@@ -16,6 +16,7 @@ import { GrowthEngineScene } from "@/components/sections/growth-engine-scene"
 import { ReputationOsScene } from "@/components/sections/reputationos-scene"
 import { ProcessScene } from "@/components/sections/process-scene"
 import { TechMapScene } from "@/components/sections/tech-map-scene"
+import { CasesShowcase } from "@/components/sections/cases-showcase"
 import { FinalCta } from "@/components/sections/final-cta"
 import { Footer } from "@/components/sections/footer"
 import { PanelRoot } from "@/components/panels/panel-root"
@@ -67,6 +68,7 @@ function PageContent() {
         <ProcessScene />
         <TechMapScene />
         <FinalCta />
+        <CasesShowcase />
         <Footer />
       </main>
     </div>

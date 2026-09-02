@@ -351,3 +351,32 @@ body {
     display: none;
   }
 }
+
+/* --- WebGL-сцены кейсов --------------------------------------------------
+   Правило img/video/canvas ниже — авторское, и оно перебивает браузерное
+   [hidden]{display:none}. Без явного восстановления скрытый фоллбэк-<img>
+   остаётся в потоке и показывает alt-текст поверх сцены. */
+.scene-viewport [hidden] {
+  display: none;
+}
+
+.scene-viewport:not(.is-active) .scene-canvas {
+  display: none;
+}
+
+.scene-tooltip {
+  position: absolute;
+  z-index: 5;
+  margin: 0;
+  padding: 0.5rem 0.65rem;
+  transform: translate(0.75rem, 0.75rem);
+  background: rgba(8, 9, 11, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--text);
+  pointer-events: none;
+  white-space: pre;
+}

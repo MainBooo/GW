@@ -1,21 +1,36 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { usePanel } from "@/lib/panel-context"
 
-const NAV_ITEMS = [
+type NavItem = { href: string; label: string; external?: boolean }
+
+// Пункты с href, начинающимся не с "#", ведут на отдельные страницы. Их нельзя
+// передавать в document.querySelector — "/cases" не является валидным
+// селектором и роняет вызов с SyntaxError.
+const NAV_ITEMS: NavItem[] = [
   { href: "#services", label: "Услуги" },
-  { href: "#growth-engine", label: "Growth Engine" },
-  { href: "#reputationos", label: "ReputationOS" },
+  { href: "/cases", label: "Кейсы", external: true },
+  { href: "/saas", label: "SaaS", external: true },
   { href: "#process", label: "Процесс" },
   { href: "#contact", label: "Контакты" },
 ]
+
+const isAnchor = (item: NavItem) => item.href.startsWith("#")
 
 export function Header() {
   const { openPanel } = usePanel()
   const [scrolled, setScrolled] = useState(false)
   const [activeHref, setActiveHref] = useState("#top")
+  const pathname = usePathname()
+  const onHome = pathname === "/"
+
+  // Вне главной якорные пункты должны вести на главную к нужной секции,
+  // иначе клик по «Услуги» со страницы кейса не делает ничего.
+  const resolveHref = (item: NavItem) => (isAnchor(item) && !onHome ? `/${item.href}` : item.href)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -25,9 +40,9 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    const sections = NAV_ITEMS.map((item) => document.querySelector(item.href)).filter(
-      (el): el is Element => el !== null,
-    )
+    const sections = NAV_ITEMS.filter(isAnchor)
+      .map((item) => document.querySelector(item.href))
+      .filter((el): el is Element => el !== null)
     if (sections.length === 0) return
 
     const observer = new IntersectionObserver(
@@ -55,7 +70,7 @@ export function Header() {
             : "border-white/5 bg-transparent backdrop-blur-0"
         }`}
       >
-        <a href="#top" className="flex items-center gap-2.5 shrink-0">
+        <Link href={onHome ? "#top" : "/"} className="flex items-center gap-2.5 shrink-0">
           <Image
             src="/logo/generationweb.svg"
             alt="GenerationWeb"
@@ -64,22 +79,22 @@ export function Header() {
             className="rounded-lg"
           />
           <span className="hidden text-sm font-semibold tracking-tight text-white sm:inline">GenerationWeb</span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-1 text-[13px] text-white/70 lg:flex" aria-label="Основная навигация">
           {NAV_ITEMS.map((item) => (
-            <a
+            <Link
               key={item.href}
-              href={item.href}
+              href={resolveHref(item)}
               className={`relative rounded-full px-3.5 py-2 transition hover:bg-white/[0.06] hover:text-white ${
-                activeHref === item.href ? "text-white" : ""
+                activeHref === item.href || pathname === item.href ? "text-white" : ""
               }`}
             >
               {item.label}
-              {activeHref === item.href && (
+              {(activeHref === item.href || pathname === item.href) && (
                 <span className="absolute inset-x-3 -bottom-0.5 h-px bg-gradient-to-r from-secondary via-accent to-primary" />
               )}
-            </a>
+            </Link>
           ))}
         </nav>
 
