@@ -4,7 +4,17 @@ import { useState, type FormEvent } from "react"
 import { usePanel } from "@/lib/panel-context"
 import { PanelShell } from "@/components/panels/panel-shell"
 
-const PROJECT_TYPES = ["AI-агент / мультиагентная система", "SaaS-платформа", "Внутренняя система", "Веб-приложение", "Другое"]
+const PROJECT_TYPES = [
+  "Интерактивный сайт",
+  "WebGL / Three.js-модуль",
+  "3D-сцена или визуализация",
+  "Сайт под ключ",
+  "SaaS / веб-приложение",
+  "AI-система",
+  "Другое",
+]
+
+const BUDGET_OPTIONS = ["До 50 тыс. ₽", "50–150 тыс. ₽", "150–300 тыс. ₽", "От 300 тыс. ₽", "Пока не определён"]
 
 const SYSTEM_TAGS = ["CHANNEL OPEN", "PROJECT INPUT READY", "RESPONSE TIME: AS SOON AS POSSIBLE"]
 
@@ -155,22 +165,29 @@ export function ContactPanel() {
           </label>
 
           <label className="flex flex-col gap-2 text-sm text-white/70 sm:col-span-2">
-            Ориентировочный бюджет
-            <input
-              type="text"
+            Бюджет (необязательно)
+            <select
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
-              placeholder="Например: 300–600 тыс. ₽"
-              className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/30 outline-none transition focus:border-primary/50"
-            />
+              className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition focus:border-primary/50"
+            >
+              <option value="" className="bg-background text-white">
+                Не выбрано
+              </option>
+              {BUDGET_OPTIONS.map((option) => (
+                <option key={option} value={option} className="bg-background text-white">
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
 
           <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
             <button
               type="submit"
-              className="cta-primary rounded-2xl border border-primary/30 bg-gradient-to-r from-primary to-secondary px-6 py-3.5 text-base font-medium text-white shadow-soft transition hover:scale-[1.01]"
+              className="cta-bordeaux rounded-2xl border border-bordeaux-light/40 bg-gradient-to-r from-bordeaux to-bordeaux-light px-6 py-3.5 text-base font-medium text-cream shadow-soft transition hover:scale-[1.01]"
             >
-              ОТПРАВИТЬ ЗАПРОС
+              Продолжить в Telegram
             </button>
           </div>
         </form>

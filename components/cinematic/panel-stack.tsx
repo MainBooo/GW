@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -8,26 +8,49 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
 
+export interface CinematicPanel {
+  id: string
+  /** DOM id для якорной навигации из Header (напр. "services"). Необязателен. */
+  anchorId?: string
+  videoSrc: string
+  /** isNear — сосед активной панели: видео готовится заранее, тяжёлые сцены домонтируются. */
+  content: (state: { isActive: boolean; isNear: boolean }) => ReactNode
+}
+
+type VideoState = "active" | "next" | "idle"
+
 /**
  * iOS в Low Power Mode иногда молча отклоняет автоплей — без poster кадр в
- * этот момент остаётся чёрным. poster закрывает паузу нужным кадром сразу,
- * play() повторяется при возврате вкладки/страницы в фокус.
+ * этот момент остаётся чёрным. poster закрывает паузу нужным кадром сразу.
+ * Воспроизводится только активная панель: соседняя преднагружается
+ * (preload="auto", без play), остальные — preload="none" и на паузе, чтобы
+ * не тянуть все четыре ролика одновременно.
  */
-function PanelVideo({ src }: { src: string }) {
+function PanelVideo({ src, state }: { src: string; state: VideoState }) {
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const retry = () => void el.play().catch(() => {})
-    retry()
-    document.addEventListener("visibilitychange", retry)
-    window.addEventListener("pageshow", retry)
-    return () => {
-      document.removeEventListener("visibilitychange", retry)
-      window.removeEventListener("pageshow", retry)
+
+    const apply = () => {
+      if (state === "active" && !document.hidden) {
+        el.preload = "auto"
+        void el.play().catch(() => {})
+      } else {
+        el.pause()
+        el.preload = state === "next" ? "auto" : "none"
+      }
     }
-  }, [])
+
+    apply()
+    document.addEventListener("visibilitychange", apply)
+    window.addEventListener("pageshow", apply)
+    return () => {
+      document.removeEventListener("visibilitychange", apply)
+      window.removeEventListener("pageshow", apply)
+    }
+  }, [state])
 
   return (
     <video
@@ -35,42 +58,19 @@ function PanelVideo({ src }: { src: string }) {
       className="absolute inset-0 h-full w-full object-cover"
       src={src}
       poster={src.replace(/\.mp4$/, ".jpg")}
-      autoPlay
       muted
       loop
       playsInline
-      preload="auto"
+      preload={state === "idle" ? "none" : "auto"}
     />
   )
 }
 
-export interface CinematicPanel {
-  id: string
-  eyebrow: string
-  heading: string
-  sub: string
-  /**
-   * Цвет-подложка под видео: красится мгновенно, пока файл ещё не
-   * прогрузился, и остаётся видимым по краям при letterbox на нетипичных
-   * пропорциях экрана.
-   */
-  placeholderClass: string
-  videoSrc?: string
-  cta?: { label: string; onClick: () => void }
-}
-
-/**
- * Полноэкранный видео-скролл: N панелей внутри одного закреплённого
- * вьюпорта, кроссфейд между соседними держится на прогрессе скролла.
- * Тот же приём, что уже использует Hero/TechMapScene этого сайта
- * (растянутая обёртка + sticky top-0 h-[100svh]) — только вместо камеры
- * 3D-сцены здесь меняется непрозрачность слоёв.
- */
 export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const layerRefs = useRef<(HTMLDivElement | null)[]>([])
-  const textRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [inViewport, setInViewport] = useState(true)
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -86,8 +86,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
       onUpdate: (self) => {
         const raw = self.progress * (total - 1)
         // Треугольное окно: слой i виден там, где raw ближе всего к i,
-        // и линейно гаснет к соседям — простой и честный кроссфейд без
-        // отдельной ветки на вход/выход.
+        // и линейно гаснет к соседям — простой и честный кроссфейд.
         layerRefs.current.forEach((el, i) => {
           if (!el) return
           const opacity = Math.max(0, 1 - Math.abs(raw - i))
@@ -105,70 +104,66 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     return () => st.kill()
   }, [panels.length])
 
+  // Отдельная защита от "фонового" воспроизведения: если вся секция целиком
+  // ушла из вьюпорта (например, будущий контент ниже экрана 4), видео и
+  // сцену останавливаем независимо от активного индекса.
   useEffect(() => {
-    if (!textRef.current) return
-    gsap.fromTo(
-      textRef.current,
-      { opacity: 0, y: 14 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-    )
+    const wrap = wrapRef.current
+    if (!wrap) return
+    const observer = new IntersectionObserver(([entry]) => setInViewport(entry.isIntersecting), { threshold: 0 })
+    observer.observe(wrap)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    layerRefs.current.forEach((el, i) => {
+      if (el) el.inert = i !== active
+    })
   }, [active])
 
-  const panel = panels[active]
+  const videoState = (i: number): VideoState => {
+    if (!inViewport) return "idle"
+    if (i === active) return "active"
+    if (Math.abs(i - active) === 1) return "next"
+    return "idle"
+  }
 
   return (
-    // 100vh на iOS Safari пересчитывается в реальном времени при скрытии и
-    // появлении адресной строки; sticky-элемент, привязанный к «прыгающей»
-    // высоте, на каждый такой пересчёт на долю секунды съезжает и открывает
-    // чёрные зазоры по краям — тот же класс бага, что уже решён в hero.tsx
-    // через 100svh (стабильная «малая» высота, не зависит от тулбара).
     <div ref={wrapRef} style={{ height: `${panels.length * 100}svh` }} className="relative">
+      {panels.map(
+        (p, i) =>
+          p.anchorId && (
+            <div
+              key={`anchor-${p.anchorId}`}
+              id={p.anchorId}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0"
+              style={{ top: `${i * 100}svh`, height: "100svh" }}
+            />
+          ),
+      )}
+
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
-        {panels.map((p, i) => (
-          <div
-            key={p.id}
-            ref={(el) => {
-              layerRefs.current[i] = el
-            }}
-            className={`absolute inset-0 ${p.placeholderClass}`}
-            style={{ opacity: i === 0 ? 1 : 0 }}
-            aria-hidden={i !== active}
-          >
-            {p.videoSrc && <PanelVideo src={p.videoSrc} />}
-            {/* Затемнение снизу — текст должен читаться на любом фоне */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
-          </div>
-        ))}
-
-        <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-24 text-center sm:pb-32">
-          <div ref={textRef} className="max-w-2xl">
-            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-white/60">{panel.eyebrow}</p>
-            <h2 className="mt-4 text-balance text-3xl font-light leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl">
-              {panel.heading}
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-white/65">{panel.sub}</p>
-            {panel.cta && (
-              <button
-                type="button"
-                onClick={panel.cta.onClick}
-                className="mt-8 rounded-full border border-white/25 bg-white/[0.06] px-7 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/[0.12]"
-              >
-                {panel.cta.label}
-              </button>
-            )}
-          </div>
-
-          <div className="mt-10 flex items-center gap-1.5" aria-hidden="true">
-            {panels.map((p, i) => (
-              <span
-                key={p.id}
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  i === active ? "w-6 bg-white/80" : "w-1.5 bg-white/25"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        {panels.map((p, i) => {
+          const isActive = i === active
+          const isNear = Math.abs(i - active) <= 1
+          return (
+            <div
+              key={p.id}
+              ref={(el) => {
+                layerRefs.current[i] = el
+              }}
+              className="absolute inset-0"
+              style={{ opacity: i === 0 ? 1 : 0 }}
+              aria-hidden={!isActive}
+            >
+              <PanelVideo src={p.videoSrc} state={videoState(i)} />
+              {/* Затемнение снизу — текст должен читаться на любом кадре */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/50" />
+              <div className="relative z-10 h-full w-full">{p.content({ isActive, isNear })}</div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

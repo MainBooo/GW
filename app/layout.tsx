@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import "./globals.css"
 
-const title = "AI-системы и веб-продукты для бизнеса — GenerationWeb"
+const title = "WebGL и Three.js-разработка для агентств и бизнеса — GenerationWeb"
 const description =
-  "Проектируем и разрабатываем AI-агентов, SaaS-платформы, внутренние системы и современные веб-приложения. Реальные кейсы: Growth Engine, ReputationOS."
+  "Интерактивные сайты, 3D/WebGL-сцены, сложная анимация и full-stack разработка. Подключение к проектам агентств или создание продукта целиком. Работающие production-системы: ReputationOS, Strategy Lab."
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://generationweb.ru"),
@@ -66,9 +66,9 @@ const jsonLd = {
   areaServed: "RU",
   sameAs: ["https://t.me/max92pole"],
   makesOffer: [
-    { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI-системы и AI-агенты" } },
-    { "@type": "Offer", itemOffered: { "@type": "Service", name: "SaaS и внутренние бизнес-платформы" } },
-    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Современные веб-приложения" } },
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Интерактивные сайты и WebGL/Three.js-сцены" } },
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Full-stack разработка сайтов и цифровых продуктов" } },
+    { "@type": "Offer", itemOffered: { "@type": "Service", name: "SaaS и AI-системы" } },
   ],
 }
 

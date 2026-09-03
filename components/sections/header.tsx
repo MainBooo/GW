@@ -11,9 +11,19 @@ type NavItem = { href: string; label: string; external?: boolean }
 // Пункты с href, начинающимся не с "#", ведут на отдельные страницы. Их нельзя
 // передавать в document.querySelector — "/cases" не является валидным
 // селектором и роняет вызов с SyntaxError.
-// Секции-якоря (Услуги/Процесс) относились к прежней agency-версии главной
-// и вместе с ней ушли в архив — тег archive/agency-site-2026-09-02.
-const NAV_ITEMS: NavItem[] = [
+//
+// Навигация различается по маршруту: на главной это якоря по новым четырём
+// экранам (Кейсы/SaaS туда сознательно не выводятся — см. бриф на
+// cinematic-переработку); на остальных страницах (/cases, /saas и их
+// вложенные) состав пунктов прежний, чтобы не сломать переходы между ними —
+// Header общий компонент, и его меняют для всех, кто его рендерит.
+const HOME_NAV_ITEMS: NavItem[] = [
+  { href: "#services", label: "Услуги" },
+  { href: "#products", label: "Продукты" },
+  { href: "#contact", label: "Контакт" },
+]
+
+const OTHER_NAV_ITEMS: NavItem[] = [
   { href: "/cases", label: "Кейсы", external: true },
   { href: "/saas", label: "SaaS", external: true },
 ]
@@ -26,6 +36,7 @@ export function Header() {
   const [activeHref, setActiveHref] = useState("#top")
   const pathname = usePathname()
   const onHome = pathname === "/"
+  const NAV_ITEMS = onHome ? HOME_NAV_ITEMS : OTHER_NAV_ITEMS
 
   // Вне главной якорные пункты должны вести на главную к нужной секции,
   // иначе клик по «Услуги» со страницы кейса не делает ничего.
@@ -38,6 +49,10 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  // NAV_ITEMS сознательно не в зависимостях: он определяется маршрутом при
+  // монтировании (Header пересоздаётся при переходе между страницами —
+  // это отдельные деревья компонентов), искать якорные секции заново при
+  // каждом их "изменении" в рамках одного монтирования не нужно.
   useEffect(() => {
     const sections = NAV_ITEMS.filter(isAnchor)
       .map((item) => document.querySelector(item.href))
@@ -57,6 +72,7 @@ export function Header() {
 
     sections.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- NAV_ITEMS зависит от маршрута, стабилен на весь срок жизни этого монтирования
   }, [])
 
   return (
@@ -101,7 +117,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => openPanel("contact")}
-            className="hidden rounded-full border border-primary/30 bg-gradient-to-r from-primary to-secondary px-4 py-2 text-[13px] font-medium text-white shadow-soft transition hover:scale-[1.03] sm:inline-flex"
+            className="hidden rounded-full border border-bordeaux-light/40 bg-gradient-to-r from-bordeaux to-bordeaux-light px-4 py-2 text-[13px] font-medium text-cream shadow-soft transition hover:scale-[1.03] sm:inline-flex"
           >
             Обсудить проект
           </button>

@@ -17,6 +17,14 @@ export default {
         ink: "#F5F7FF",
         muted: "#929AB4",
         border: "rgba(255, 255, 255, 0.10)",
+        // Тёмная арт-дирекция главной: бордовый/песочный вместо типового
+        // сине-фиолетового AI-стиля. Новые токены, старые (primary/secondary
+        // /accent) не трогаем — они всё ещё нужны /cases и /saas.
+        bordeaux: "#6E2430",
+        "bordeaux-light": "#9C4550",
+        sand: "#C9AE82",
+        cream: "#F2ECDD",
+        stone: "#A79C8C",
       },
       borderRadius: {
         sm: "12px",

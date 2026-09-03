@@ -1,21 +1,28 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { usePanel } from "@/lib/panel-context"
 import { PanelShell } from "@/components/panels/panel-shell"
 
-// Прежние пункты (#services, #growth-engine, #reputationos, #process, #contact)
-// вели на секции agency-версии главной, которая заархивирована —
-// git tag archive/agency-site-2026-09-02. Список приведён к тому, что
-// реально существует на кинематографичной главной, тем же составом,
-// что и десктопная навигация в header.tsx.
-const links = [
+// Тот же состав, что и в desktop-навигации header.tsx: на главной — якоря по
+// четырём экранам, на остальных страницах (/cases, /saas) — прежние ссылки,
+// чтобы между ними не пропала навигация.
+const HOME_LINKS = [
+  { href: "#services", label: "Услуги" },
+  { href: "#products", label: "Продукты" },
+  { href: "#contact", label: "Контакт" },
+]
+
+const OTHER_LINKS = [
   { href: "/cases", label: "Кейсы" },
   { href: "/saas", label: "SaaS" },
 ]
 
 export function MobileMenuPanel() {
   const { closePanel, openPanel } = usePanel()
+  const onHome = usePathname() === "/"
+  const links = onHome ? HOME_LINKS : OTHER_LINKS
 
   return (
     <PanelShell side="right" title="Меню" ariaLabel="Главное меню" onClose={closePanel} widthClassName="w-full sm:w-[420px]">
@@ -35,7 +42,7 @@ export function MobileMenuPanel() {
       <button
         type="button"
         onClick={() => openPanel("contact")}
-        className="cta-primary mt-8 w-full rounded-2xl border border-primary/30 bg-gradient-to-r from-primary to-secondary px-6 py-4 text-base font-medium text-white shadow-soft transition hover:scale-[1.01]"
+        className="cta-bordeaux mt-8 w-full rounded-2xl border border-bordeaux-light/40 bg-gradient-to-r from-bordeaux to-bordeaux-light px-6 py-4 text-base font-medium text-cream shadow-soft transition hover:scale-[1.01]"
       >
         Обсудить проект
       </button>

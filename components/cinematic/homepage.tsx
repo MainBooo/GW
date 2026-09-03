@@ -5,50 +5,46 @@ import { LenisProvider } from "@/lib/lenis-provider"
 import { CustomCursor } from "@/components/effects/custom-cursor"
 import { CinematicOverlay } from "@/components/effects/cinematic-overlay"
 import { Header } from "@/components/sections/header"
-import { Footer } from "@/components/sections/footer"
 import { PanelRoot } from "@/components/panels/panel-root"
 import { PanelStack, type CinematicPanel } from "@/components/cinematic/panel-stack"
+import { HeroScreen } from "@/components/cinematic/screens/hero-screen"
+import { ServicesScreen } from "@/components/cinematic/screens/services-screen"
+import { ProductsScreen } from "@/components/cinematic/screens/products-screen"
+import { ContactScreen } from "@/components/cinematic/screens/contact-screen"
 
 /**
  * Футажи — Coverr, лицензия «Royalty-Free for Commercial Use», без
  * атрибуции (проверено на странице лицензии сайта). Обрезаны до 9 секунд
  * и пережаты под вес фона на автовоспроизведении (1.7–2.6 МБ на ролик).
- * Источники разобраны в public/videos/SOURCES.md.
+ * Источники разобраны в public/videos/SOURCES.md. Файлы и порядок роликов
+ * зафиксированы — менять нельзя.
  */
 function buildPanels(openContact: () => void): CinematicPanel[] {
   return [
     {
-      id: "intro",
-      eyebrow: "GenerationWeb · Web Studio",
-      heading: "Разработка, которая доводится до продакшена",
-      sub: "AI-агенты, SaaS-платформы и веб-приложения — от архитектуры до запуска.",
-      placeholderClass: "cinematic-mist",
+      id: "hero",
       videoSrc: "/videos/mist.mp4",
+      content: ({ isNear, isActive }) => (
+        <HeroScreen onOpenContact={openContact} mounted={isNear} spinning={isActive} />
+      ),
     },
     {
-      id: "thesis",
-      eyebrow: "Подход",
-      heading: "Не макет, а работающая система",
-      sub: "Бэкенд, фоновые обработчики, интеграции и эксплуатация — не только интерфейс.",
-      placeholderClass: "cinematic-ocean",
+      id: "services",
+      anchorId: "services",
       videoSrc: "/videos/thesis.mp4",
+      content: () => <ServicesScreen onOpenContact={openContact} />,
     },
     {
-      id: "proof",
-      eyebrow: "Доказательство",
-      heading: "ReputationOS и Strategy Lab работают прямо сейчас",
-      sub: "Не демонстрации — платформы с реальными пользователями и данными.",
-      placeholderClass: "cinematic-space",
+      id: "products",
+      anchorId: "products",
       videoSrc: "/videos/proof.mp4",
+      content: () => <ProductsScreen />,
     },
     {
-      id: "cta",
-      eyebrow: "Начать",
-      heading: "Расскажите, что нужно построить",
-      sub: "Отвечаю в течение дня.",
-      placeholderClass: "cinematic-forest",
+      id: "contact",
+      anchorId: "contact",
       videoSrc: "/videos/forest.mp4",
-      cta: { label: "Обсудить проект", onClick: openContact },
+      content: () => <ContactScreen onOpenContact={openContact} />,
     },
   ]
 }
@@ -67,7 +63,6 @@ export function CinematicHomepage() {
       <main id="top" className="relative z-10 bg-background text-white">
         <Header />
         <CinematicBody />
-        <Footer />
       </main>
       <PanelRoot />
     </PanelProvider>
