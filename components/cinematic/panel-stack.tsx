@@ -27,7 +27,7 @@ export interface CinematicPanel {
  * Полноэкранный видео-скролл: N панелей внутри одного закреплённого
  * вьюпорта, кроссфейд между соседними держится на прогрессе скролла.
  * Тот же приём, что уже использует Hero/TechMapScene этого сайта
- * (растянутая обёртка + sticky top-0 h-screen) — только вместо камеры
+ * (растянутая обёртка + sticky top-0 h-[100svh]) — только вместо камеры
  * 3D-сцены здесь меняется непрозрачность слоёв.
  */
 export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
@@ -81,8 +81,13 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const panel = panels[active]
 
   return (
-    <div ref={wrapRef} style={{ height: `${panels.length * 100}vh` }} className="relative">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-background">
+    // 100vh на iOS Safari пересчитывается в реальном времени при скрытии и
+    // появлении адресной строки; sticky-элемент, привязанный к «прыгающей»
+    // высоте, на каждый такой пересчёт на долю секунды съезжает и открывает
+    // чёрные зазоры по краям — тот же класс бага, что уже решён в hero.tsx
+    // через 100svh (стабильная «малая» высота, не зависит от тулбара).
+    <div ref={wrapRef} style={{ height: `${panels.length * 100}svh` }} className="relative">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
         {panels.map((p, i) => (
           <div
             key={p.id}
