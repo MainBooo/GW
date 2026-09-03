@@ -380,3 +380,28 @@ body {
   pointer-events: none;
   white-space: pre;
 }
+
+/* --- Заглушки видео-фонов для кинематографичного скролла ---------------
+   Временные, до поставки реальных футажей. Настроение подобрано под четыре
+   бита сцены: интро, тезис, доказательство, призыв к действию. Заменяются
+   на <video> без изменения разметки PanelStack. */
+.cinematic-mist {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(120, 130, 150, 0.35), transparent 60%),
+    linear-gradient(180deg, #2b2f38 0%, #14161c 55%, #0a0b0f 100%);
+}
+.cinematic-ocean {
+  background:
+    radial-gradient(ellipse 70% 50% at 60% 40%, rgba(40, 90, 110, 0.4), transparent 65%),
+    linear-gradient(200deg, #0d2530 0%, #0a1620 50%, #060a0e 100%);
+}
+.cinematic-space {
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 70%, rgba(60, 80, 160, 0.3), transparent 60%),
+    linear-gradient(160deg, #10131f 0%, #090a12 60%, #050508 100%);
+}
+.cinematic-forest {
+  background:
+    radial-gradient(ellipse 65% 55% at 55% 25%, rgba(70, 110, 80, 0.35), transparent 65%),
+    linear-gradient(190deg, #172018 0%, #0e130f 55%, #080b09 100%);
+}

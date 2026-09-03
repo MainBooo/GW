@@ -11,12 +11,11 @@ type NavItem = { href: string; label: string; external?: boolean }
 // Пункты с href, начинающимся не с "#", ведут на отдельные страницы. Их нельзя
 // передавать в document.querySelector — "/cases" не является валидным
 // селектором и роняет вызов с SyntaxError.
+// Секции-якоря (Услуги/Процесс) относились к прежней agency-версии главной
+// и вместе с ней ушли в архив — тег archive/agency-site-2026-09-02.
 const NAV_ITEMS: NavItem[] = [
-  { href: "#services", label: "Услуги" },
   { href: "/cases", label: "Кейсы", external: true },
   { href: "/saas", label: "SaaS", external: true },
-  { href: "#process", label: "Процесс" },
-  { href: "#contact", label: "Контакты" },
 ]
 
 const isAnchor = (item: NavItem) => item.href.startsWith("#")
