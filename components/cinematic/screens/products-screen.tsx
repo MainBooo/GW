@@ -9,14 +9,14 @@ const PRODUCTS = [
     text: "Платформа мониторинга отзывов и веб-упоминаний: единый inbox, аналитика рейтинга и тональности, уведомления и AI-черновики ответов.",
     href: "https://reputationos.generationweb.ru",
     cta: "Открыть ReputationOS",
-    screenshot: "/projects/reputationos/dashboard-overview.jpeg",
+    screenshot: "/projects/reputationos/hero-mockup.jpg",
   },
   {
     name: "Strategy Lab",
     text: "Платформа для тестирования торговых стратегий на исторических данных с интерактивными графиками и режимом Market Replay.",
     href: "https://strategylab.generationweb.ru",
     cta: "Открыть Strategy Lab",
-    screenshot: "/projects/strategylab/dashboard.png",
+    screenshot: "/projects/strategylab/hero-dashboard.jpg",
   },
 ]
 
@@ -35,7 +35,7 @@ export function ProductsScreen() {
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           {PRODUCTS.map((product) => (
             <div key={product.name} className="glass-cinema flex flex-col overflow-hidden rounded-[24px]">
-              <div className="relative aspect-[16/10] w-full border-b border-white/10">
+              <div className="relative aspect-[3/2] w-full border-b border-white/10">
                 <Image
                   src={product.screenshot}
                   alt={`Интерфейс ${product.name}`}
