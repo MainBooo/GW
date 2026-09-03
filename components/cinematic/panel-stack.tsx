@@ -8,6 +8,42 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
 
+/**
+ * iOS в Low Power Mode иногда молча отклоняет автоплей — без poster кадр в
+ * этот момент остаётся чёрным. poster закрывает паузу нужным кадром сразу,
+ * play() повторяется при возврате вкладки/страницы в фокус.
+ */
+function PanelVideo({ src }: { src: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const retry = () => void el.play().catch(() => {})
+    retry()
+    document.addEventListener("visibilitychange", retry)
+    window.addEventListener("pageshow", retry)
+    return () => {
+      document.removeEventListener("visibilitychange", retry)
+      window.removeEventListener("pageshow", retry)
+    }
+  }, [])
+
+  return (
+    <video
+      ref={ref}
+      className="absolute inset-0 h-full w-full object-cover"
+      src={src}
+      poster={src.replace(/\.mp4$/, ".jpg")}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+    />
+  )
+}
+
 export interface CinematicPanel {
   id: string
   eyebrow: string
@@ -98,17 +134,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
             style={{ opacity: i === 0 ? 1 : 0 }}
             aria-hidden={i !== active}
           >
-            {p.videoSrc && (
-              <video
-                className="absolute inset-0 h-full w-full object-cover"
-                src={p.videoSrc}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-              />
-            )}
+            {p.videoSrc && <PanelVideo src={p.videoSrc} />}
             {/* Затемнение снизу — текст должен читаться на любом фоне */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
           </div>
