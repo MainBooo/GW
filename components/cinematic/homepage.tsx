@@ -3,6 +3,7 @@
 import { PanelProvider, usePanel } from "@/lib/panel-context"
 import { LenisProvider } from "@/lib/lenis-provider"
 import { CustomCursor } from "@/components/effects/custom-cursor"
+import { CinematicOverlay } from "@/components/effects/cinematic-overlay"
 import { Header } from "@/components/sections/header"
 import { Footer } from "@/components/sections/footer"
 import { PanelRoot } from "@/components/panels/panel-root"
@@ -21,7 +22,7 @@ function buildPanels(openContact: () => void): CinematicPanel[] {
       eyebrow: "GenerationWeb · Web Studio",
       heading: "Разработка, которая доводится до продакшена",
       sub: "AI-агенты, SaaS-платформы и веб-приложения — от архитектуры до запуска.",
-      placeholderClass: "cinematic-mist cinematic-grain",
+      placeholderClass: "cinematic-mist",
       videoSrc: "/videos/mist.mp4",
     },
     {
@@ -29,7 +30,7 @@ function buildPanels(openContact: () => void): CinematicPanel[] {
       eyebrow: "Подход",
       heading: "Не макет, а работающая система",
       sub: "Бэкенд, фоновые обработчики, интеграции и эксплуатация — не только интерфейс.",
-      placeholderClass: "cinematic-ocean cinematic-grain",
+      placeholderClass: "cinematic-ocean",
       videoSrc: "/videos/thesis.mp4",
     },
     {
@@ -37,7 +38,7 @@ function buildPanels(openContact: () => void): CinematicPanel[] {
       eyebrow: "Доказательство",
       heading: "ReputationOS и Strategy Lab работают прямо сейчас",
       sub: "Не демонстрации — платформы с реальными пользователями и данными.",
-      placeholderClass: "cinematic-space cinematic-grain",
+      placeholderClass: "cinematic-space",
       videoSrc: "/videos/proof.mp4",
     },
     {
@@ -45,7 +46,7 @@ function buildPanels(openContact: () => void): CinematicPanel[] {
       eyebrow: "Начать",
       heading: "Расскажите, что нужно построить",
       sub: "Отвечаю в течение дня.",
-      placeholderClass: "cinematic-forest cinematic-grain",
+      placeholderClass: "cinematic-forest",
       videoSrc: "/videos/forest.mp4",
       cta: { label: "Обсудить проект", onClick: openContact },
     },
@@ -61,6 +62,7 @@ export function CinematicHomepage() {
   return (
     <PanelProvider>
       <LenisProvider />
+      <CinematicOverlay />
       <CustomCursor />
       <main id="top" className="relative z-10 bg-background text-white">
         <Header />
