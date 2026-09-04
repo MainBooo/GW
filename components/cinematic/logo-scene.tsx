@@ -190,6 +190,12 @@ export function LogoScene({ className, interactive = true, visible = true }: Log
   const [tier, setTier] = useState<LogoTier | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [tabHidden, setTabHidden] = useState(false)
+  // WebGL-контекст и первая отрисовка занимают заметную долю секунды после
+  // монтирования — без этого флага объект не проявляется, а "выскакивает"
+  // уже полностью собранным поверх карточки, которая успела отрисоваться
+  // раньше. Канвас держим на opacity:0 до первого кадра, затем плавно
+  // проявляем через CSS-transition.
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     setTier(detectLogoTier())
@@ -207,9 +213,15 @@ export function LogoScene({ className, interactive = true, visible = true }: Log
     }
   }, [])
 
-  // До определения возможностей и без WebGL — обычный SVG-логотип, без
-  // сломанной композиции.
-  if (tier === null || tier === "off") {
+  // Без WebGL — обычный SVG-логотип сразу, без сломанной композиции. Пока
+  // возможности ещё не определены (tier === null, обычно один тик после
+  // гидратации) — ничего не рендерим: сам SVG цветной (совпадает с хедером),
+  // тёмная 3D-версия — нет, и мелькание одного вместо другого на пару кадров
+  // читается как ещё один резкий скачок, который мы и убираем.
+  if (tier === null) {
+    return <div className={className} />
+  }
+  if (tier === "off") {
     return <FallbackLogo className={className} />
   }
 
@@ -219,21 +231,28 @@ export function LogoScene({ className, interactive = true, visible = true }: Log
 
   return (
     <div className={className}>
-      <Canvas
-        dpr={dprCap}
-        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
-        camera={{ fov: 40, position: [0, 0, 4.2] }}
-        frameloop={shouldRender ? "always" : "never"}
-      >
-        <ambientLight intensity={0.55} color="#4a4f66" />
-        <directionalLight position={[-2.2, 1.6, -1.8]} intensity={1.4} color="#cfd6ff" />
-        <directionalLight position={[1.6, 2, 2.6]} intensity={0.65} color="#f2ecdd" />
-        <directionalLight position={[0, 0.4, 4]} intensity={0.4} color="#e8e2d4" />
+      <div className={`h-full w-full transition-opacity duration-700 ease-out ${ready ? "opacity-100" : "opacity-0"}`}>
+        <Canvas
+          dpr={dprCap}
+          gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+          camera={{ fov: 40, position: [0, 0, 4.2] }}
+          frameloop={shouldRender ? "always" : "never"}
+          onCreated={() => {
+            // Двойной rAF — контекст создан, но геометрия ещё не обязательно
+            // попала в первый закоммиченный кадр; ждём кадр после кадра.
+            requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)))
+          }}
+        >
+          <ambientLight intensity={0.55} color="#4a4f66" />
+          <directionalLight position={[-2.2, 1.6, -1.8]} intensity={1.4} color="#cfd6ff" />
+          <directionalLight position={[1.6, 2, 2.6]} intensity={0.65} color="#f2ecdd" />
+          <directionalLight position={[0, 0.4, 4]} intensity={0.4} color="#e8e2d4" />
 
-        <Suspense fallback={null}>
-          <LogoRig pointerFollow={interactive} reducedMotion={reducedMotion} segments={reducedSegments} />
-        </Suspense>
-      </Canvas>
+          <Suspense fallback={null}>
+            <LogoRig pointerFollow={interactive} reducedMotion={reducedMotion} segments={reducedSegments} />
+          </Suspense>
+        </Canvas>
+      </div>
     </div>
   )
 }
