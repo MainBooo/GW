@@ -89,11 +89,15 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
       scrub: true,
       onUpdate: (self) => {
         const raw = self.progress * (total - 1)
-        // Треугольное окно: слой i виден там, где raw ближе всего к i,
-        // и линейно гаснет к соседям — простой и честный кроссфейд.
+        // Треугольное окно: слой i виден там, где raw ближе всего к i, и
+        // гаснет к соседям в радиусе CROSSFADE_SPAN (не на всём шаге между
+        // экранами — при плотном контенте (карточки/кнопки/футер) широкий
+        // блендинг двух экранов на 50/50 читается как наложение/поломка, а
+        // не как переход, поэтому окно сознательно уже полного шага).
+        const CROSSFADE_SPAN = 0.42
         layerRefs.current.forEach((el, i) => {
           if (!el) return
-          const opacity = Math.max(0, 1 - Math.abs(raw - i))
+          const opacity = Math.max(0, 1 - Math.abs(raw - i) / CROSSFADE_SPAN)
           el.style.opacity = String(opacity)
         })
 
