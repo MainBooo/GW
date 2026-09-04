@@ -5,18 +5,18 @@ import { Eyebrow } from "@/components/cinematic/eyebrow"
 const CAPABILITIES = [
   {
     n: "01",
-    title: "WebGL и Three.js",
-    text: "Интерактивные 3D-сцены, шейдеры, продуктовые презентации и визуальные эффекты.",
+    title: "Интерактивные сайты",
+    text: "Кинематографическая подача, scroll-анимация, адаптивные интерфейсы и нестандартные визуальные сценарии.",
   },
   {
     n: "02",
-    title: "Сайты нового поколения",
-    text: "Продуманная структура, сложная анимация, адаптивный интерфейс и production-деплой.",
+    title: "WebGL и 3D-интеграция",
+    text: "Интерактивные логотипы, продуктовые сцены, готовые 3D-модели, шейдеры и визуальные эффекты.",
   },
   {
     n: "03",
     title: "SaaS и AI-системы",
-    text: "Frontend, backend, базы данных, очереди, интеграции и AI-агенты.",
+    text: "Frontend, backend, базы данных, очереди, интеграции, личные кабинеты и AI-функции.",
   },
 ]
 
@@ -29,14 +29,17 @@ export function ServicesScreen({ onOpenContact }: { onOpenContact: () => void })
           Подключаюсь к сложной части проекта
         </h2>
         <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-stone">
-          Могу встроиться в команду агентства как технический подрядчик или взять разработку целиком.
+          Могу встроиться в команду агентства как технический подрядчик или взять разработку целиком — от архитектуры
+          до запуска.
         </p>
 
-        <div className="mt-10 grid gap-8 border-t border-white/10 pt-8 sm:grid-cols-3 sm:gap-6">
+        {/* < 768px: естественный вертикальный поток, без pinning и absolute —
+            карточки идут одна под другой с достаточным отступом (≥24px). */}
+        <div className="mt-10 grid gap-8 border-t border-white/10 pt-8 md:grid-cols-3 md:gap-6">
           {CAPABILITIES.map((item, i) => (
             <div
               key={item.n}
-              className={`pt-6 sm:pt-0 ${i > 0 ? "border-t border-white/10 sm:border-l sm:border-t-0 sm:pl-6" : ""}`}
+              className={`pt-6 md:pt-0 ${i > 0 ? "border-t border-white/10 md:border-l md:border-t-0 md:pl-6" : ""}`}
             >
               <span className="font-mono text-[11px] text-sand/70">{item.n}</span>
               <h3 className="mt-2 text-[17px] font-medium text-cream">{item.title}</h3>

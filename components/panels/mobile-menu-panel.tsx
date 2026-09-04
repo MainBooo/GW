@@ -11,6 +11,7 @@ import { PanelShell } from "@/components/panels/panel-shell"
 const HOME_LINKS = [
   { href: "#services", label: "Услуги" },
   { href: "#products", label: "Продукты" },
+  { href: "/lab", label: "Lab" },
   { href: "#contact", label: "Контакт" },
 ]
 
@@ -25,7 +26,7 @@ export function MobileMenuPanel() {
   const links = onHome ? HOME_LINKS : OTHER_LINKS
 
   return (
-    <PanelShell side="right" title="Меню" ariaLabel="Главное меню" onClose={closePanel} widthClassName="w-full sm:w-[420px]">
+    <PanelShell id="mobile-menu-panel" side="right" title="Меню" ariaLabel="Главное меню" onClose={closePanel} widthClassName="w-full sm:w-[420px]">
       <nav className="flex flex-col gap-1" aria-label="Меню сайта">
         {links.map((link) => (
           <Link

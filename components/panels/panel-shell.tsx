@@ -26,6 +26,7 @@ export function PanelShell({
   onClose,
   widthClassName,
   children,
+  id,
 }: {
   side: Side
   title: string
@@ -33,6 +34,7 @@ export function PanelShell({
   onClose: () => void
   widthClassName?: string
   children: ReactNode
+  id?: string
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
@@ -70,10 +72,13 @@ export function PanelShell({
 
       <motion.div
         ref={containerRef}
+        id={id}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
         tabIndex={-1}
+        data-safe-x={side !== "bottom" ? side : undefined}
+        data-safe-bottom={side === "bottom" ? "" : undefined}
         className={[
           "absolute glass-panel-strong shadow-glow-lg overflow-y-auto overscroll-contain",
           sideClasses[side],

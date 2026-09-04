@@ -24,9 +24,7 @@ function buildPanels(openContact: () => void): CinematicPanel[] {
     {
       id: "hero",
       videoSrc: "/videos/mist.mp4",
-      content: ({ isNear, isActive }) => (
-        <HeroScreen onOpenContact={openContact} mounted={isNear} spinning={isActive} />
-      ),
+      content: () => <HeroScreen onOpenContact={openContact} />,
     },
     {
       id: "services",

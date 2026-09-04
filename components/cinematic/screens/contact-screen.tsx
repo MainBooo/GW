@@ -15,10 +15,10 @@ export function ContactScreen({ onOpenContact }: { onOpenContact: () => void }) 
       <div className="glass-cinema mx-auto w-full max-w-2xl rounded-[28px] px-6 py-10 text-center sm:px-10 sm:py-14">
         <Eyebrow>COLLABORATION</Eyebrow>
         <h2 className="mt-4 text-balance text-[1.75rem] font-light leading-[1.15] tracking-tight text-cream sm:text-3xl lg:text-4xl">
-          Нужен интерактивный сайт или сложная разработка?
+          Нужен интерактивный сайт или сложный веб-продукт?
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-stone">
-          Подключусь как WebGL/full-stack подрядчик или соберу проект целиком — от идеи и архитектуры до запуска.
+          Подключусь к проекту как технический подрядчик или соберу его целиком — от архитектуры до запуска.
         </p>
 
         <button

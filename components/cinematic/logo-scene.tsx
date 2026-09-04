@@ -4,13 +4,15 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
+import { logoScrollState } from "@/lib/logo-scroll-state"
+import { NODES, EDGES, MATERIAL_PROPS, SCATTER, SCATTER_ROTATION, easeInOutCubic, type NodeId } from "@/lib/logo-geometry"
 
 /**
  * Отдельная от lib/device-tier.ts проверка: там prefers-reduced-motion сразу
  * означает tier "static" (сцена вообще не рисуется — верно для частиц). Для
- * логотипа спецификация другая — при reduced-motion форма остаётся видна,
- * просто без вращения и реакции на курсор; на flat SVG откатываемся только
- * при реальном отсутствии WebGL.
+ * логотипа спецификация другая — при reduced-motion форма остаётся видна в
+ * собранном виде, просто без вращения и реакции на курсор; на flat SVG
+ * откатываемся только при реальном отсутствии WebGL.
  */
 type LogoTier = "full" | "lite" | "off"
 
@@ -35,77 +37,87 @@ function detectLogoTier(): LogoTier {
   return "full"
 }
 
-/**
- * Узлы и рёбра повторяют существующий плоский знак GenerationWeb
- * (public/logo/generationweb.svg, viewBox 424×388) — координаты переведены
- * в 3D простым масштабом/центрированием, без придумывания новой формы.
- */
-const SVG_SCALE = 1 / 150
-const SVG_CENTER = { x: 212, y: 194 }
-
-function fromSvg(x: number, y: number, z: number): [number, number, number] {
-  return [(x - SVG_CENTER.x) * SVG_SCALE, -(y - SVG_CENTER.y) * SVG_SCALE, z]
+/** Текущая (собранная⇄разлетевшаяся) позиция узла — эталон не изменяется. */
+function currentNodePos(id: NodeId, assembly: number, out: THREE.Vector3): THREE.Vector3 {
+  const base = NODES[id].pos
+  const scatter = SCATTER[id]
+  const t = 1 - easeInOutCubic(assembly)
+  out.set(base[0] + scatter[0] * t, base[1] + scatter[1] * t, base[2] + scatter[2] * t)
+  return out
 }
 
-type NodeId = "A" | "B" | "C" | "D" | "E" | "F"
+function RigContents({ segments }: { segments: number }) {
+  const nodeRefs = useRef<Partial<Record<NodeId, THREE.Mesh>>>({})
+  const rodRefs = useRef<(THREE.Mesh | null)[]>([])
+  const tmpA = useMemo(() => new THREE.Vector3(), [])
+  const tmpB = useMemo(() => new THREE.Vector3(), [])
+  const tmpDir = useMemo(() => new THREE.Vector3(), [])
+  const tmpQuat = useMemo(() => new THREE.Quaternion(), [])
+  const up = useMemo(() => new THREE.Vector3(0, 1, 0), [])
 
-const NODES: Record<NodeId, { pos: [number, number, number]; material: "ceramic" | "sand" | "bordeaux"; r: number }> = {
-  A: { pos: fromSvg(20, 224, -0.15), material: "ceramic", r: 0.1 },
-  B: { pos: fromSvg(117, 48, -0.15), material: "ceramic", r: 0.09 },
-  C: { pos: fromSvg(117, 364, -0.15), material: "ceramic", r: 0.09 },
-  D: { pos: fromSvg(200, 199, 0), material: "sand", r: 0.12 },
-  E: { pos: fromSvg(293, 18, 0.15), material: "bordeaux", r: 0.1 },
-  F: { pos: fromSvg(401, 198, 0.15), material: "bordeaux", r: 0.1 },
-}
+  const unitRod = useMemo(() => new THREE.CylinderGeometry(0.028, 0.028, 1, Math.max(6, Math.round(segments / 2))), [segments])
 
-const EDGES: [NodeId, NodeId][] = [
-  ["A", "B"],
-  ["A", "D"],
-  ["A", "C"],
-  ["C", "D"],
-  ["D", "E"],
-  ["E", "F"],
-  ["D", "F"],
-]
-
-const MATERIAL_PROPS: Record<"ceramic" | "sand" | "bordeaux", { color: string; roughness: number; clearcoat: number }> = {
-  ceramic: { color: "#22232b", roughness: 0.82, clearcoat: 0.18 },
-  sand: { color: "#c9ae82", roughness: 0.6, clearcoat: 0.22 },
-  bordeaux: { color: "#6e2430", roughness: 0.5, clearcoat: 0.3 },
-}
-
-function Node({ id, segments }: { id: NodeId; segments: number }) {
-  const { pos, material, r } = NODES[id]
-  const props = MATERIAL_PROPS[material]
-  return (
-    <mesh position={pos}>
-      <sphereGeometry args={[r, segments, segments]} />
-      <meshPhysicalMaterial {...props} metalness={0} clearcoatRoughness={0.4} />
-    </mesh>
-  )
-}
-
-function Rod({ from, to, segments }: { from: NodeId; to: NodeId; segments: number }) {
-  const { geometry, position, quaternion } = useMemo(() => {
-    const a = new THREE.Vector3(...NODES[from].pos)
-    const b = new THREE.Vector3(...NODES[to].pos)
-    const direction = new THREE.Vector3().subVectors(b, a)
-    const length = direction.length()
-    const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5)
-    const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize())
-    return {
-      geometry: new THREE.CylinderGeometry(0.028, 0.028, length, segments),
-      position: mid,
-      quaternion: quat,
+  useFrame(() => {
+    const assembly = logoScrollState.assembly
+    for (const id of Object.keys(NODES) as NodeId[]) {
+      const mesh = nodeRefs.current[id]
+      if (!mesh) continue
+      currentNodePos(id, assembly, mesh.position)
+      const t = 1 - easeInOutCubic(assembly)
+      const rot = SCATTER_ROTATION[id]
+      mesh.rotation.set(rot[0] * t, rot[1] * t, rot[2] * t)
     }
-  }, [from, to, segments])
 
-  const props = MATERIAL_PROPS.ceramic
+    EDGES.forEach(([from, to], i) => {
+      const rod = rodRefs.current[i]
+      if (!rod) return
+      currentNodePos(from, assembly, tmpA)
+      currentNodePos(to, assembly, tmpB)
+      tmpDir.subVectors(tmpB, tmpA)
+      const length = tmpDir.length()
+      rod.position.copy(tmpA).addScaledVector(tmpDir, 0.5)
+      if (length > 1e-5) {
+        tmpQuat.setFromUnitVectors(up, tmpDir.clone().normalize())
+        rod.quaternion.copy(tmpQuat)
+      }
+      rod.scale.set(1, length, 1)
+      // Рёбра истончаются при разлёте — читаются как разрыв связи, а не
+      // как растянутая деталь.
+      const thin = 0.35 + 0.65 * assembly
+      rod.scale.x = thin
+      rod.scale.z = thin
+    })
+  })
 
   return (
-    <mesh geometry={geometry} position={position} quaternion={quaternion}>
-      <meshPhysicalMaterial {...props} metalness={0} clearcoatRoughness={0.4} />
-    </mesh>
+    <>
+      {EDGES.map(([from, to], i) => (
+        <mesh
+          key={`${from}-${to}`}
+          ref={(el) => {
+            rodRefs.current[i] = el
+          }}
+          geometry={unitRod}
+        >
+          <meshPhysicalMaterial {...MATERIAL_PROPS.ceramic} metalness={0} clearcoatRoughness={0.4} />
+        </mesh>
+      ))}
+      {(Object.keys(NODES) as NodeId[]).map((id) => {
+        const { material, r } = NODES[id]
+        const props = MATERIAL_PROPS[material]
+        return (
+          <mesh
+            key={id}
+            ref={(el) => {
+              if (el) nodeRefs.current[id] = el
+            }}
+          >
+            <sphereGeometry args={[r, segments, segments]} />
+            <meshPhysicalMaterial {...props} metalness={0} clearcoatRoughness={0.4} />
+          </mesh>
+        )
+      })}
+    </>
   )
 }
 
@@ -117,30 +129,27 @@ function LogoRig({ spinning, segments }: { spinning: boolean; segments: number }
     if (!spinning && group.current) {
       // Фиксированный, заранее выверенный ракурс вместо "заморозки на
       // случайном кадре" — важно для prefers-reduced-motion и tier "lite".
-      // frameloop="demand" не перерисует канвас сам — просим кадр явно.
       group.current.rotation.set(0.1, -0.3, 0)
       invalidate()
     }
   }, [spinning, invalidate])
 
   useFrame((_, delta) => {
-    if (!spinning || !group.current) return
-    group.current.rotation.y += delta * 0.045
-    const targetX = 0.1 - pointer.y * 0.12
-    const targetZ = pointer.x * 0.08
-    group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 2)
-    group.current.rotation.z += (targetZ - group.current.rotation.z) * Math.min(1, delta * 2)
+    // assembly постоянно читается извне (скролл) — кадр нужен всегда, пока
+    // логотип потенциально виден, независимо от spinning/parallax.
+    if (!group.current) return
+    if (spinning) {
+      group.current.rotation.y += delta * 0.045
+      const targetX = 0.1 - pointer.y * 0.12
+      const targetZ = pointer.x * 0.08
+      group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 2)
+      group.current.rotation.z += (targetZ - group.current.rotation.z) * Math.min(1, delta * 2)
+    }
   })
 
-  const rodSegments = Math.max(6, Math.round(segments / 2))
   return (
     <group ref={group} rotation={[0.1, -0.3, 0]}>
-      {EDGES.map(([from, to]) => (
-        <Rod key={`${from}-${to}`} from={from} to={to} segments={rodSegments} />
-      ))}
-      {(Object.keys(NODES) as NodeId[]).map((id) => (
-        <Node key={id} id={id} segments={segments} />
-      ))}
+      <RigContents segments={segments} />
     </group>
   )
 }
@@ -154,22 +163,23 @@ function FallbackLogo({ className }: { className?: string }) {
 }
 
 export interface LogoSceneProps {
-  /** Смонтировать canvas (готовим заранее, аналогично preload у видео). */
-  mounted: boolean
-  /** Активна ли анимация прямо сейчас (экран 1 в фокусе, вкладка видима). */
-  spinning: boolean
   className?: string
+  /** Автовращение + курсорный параллакс (десктоп; на мобильном всегда выключено). */
+  interactive?: boolean
+  /** Сцена сейчас на экране — держим frameloop "always", иначе ставим на паузу. */
+  visible?: boolean
 }
 
 /**
- * Лёгкая процедурная Three.js-сцена поверх видео экрана 1. Рендерится через
- * @react-three/fiber — тот же стек, что уже используется в кейсе ReputationOS
- * (components/cases/product-stage.tsx), Canvas сам освобождает renderer/
- * geometry/materials при размонтировании.
+ * Лёгкая процедурная Three.js-сцена: один общий рендерер на страницу
+ * (используется и как персистентный логотип главной, и повторно — как глава
+ * "Identity in Motion" на /lab). Сборка/распад читаются из
+ * lib/logo-scroll-state.ts, обновляемого извне по скроллу.
  */
-export function LogoScene({ mounted, spinning, className }: LogoSceneProps) {
+export function LogoScene({ className, interactive = true, visible = true }: LogoSceneProps) {
   const [tier, setTier] = useState<LogoTier | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [tabHidden, setTabHidden] = useState(false)
 
   useEffect(() => {
     setTier(detectLogoTier())
@@ -177,23 +187,26 @@ export function LogoScene({ mounted, spinning, className }: LogoSceneProps) {
     setReducedMotion(mql.matches)
     const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
     mql.addEventListener("change", onChange)
-    return () => mql.removeEventListener("change", onChange)
+
+    const onVisibility = () => setTabHidden(document.hidden)
+    document.addEventListener("visibilitychange", onVisibility)
+
+    return () => {
+      mql.removeEventListener("change", onChange)
+      document.removeEventListener("visibilitychange", onVisibility)
+    }
   }, [])
 
   // До определения возможностей и без WebGL — обычный SVG-логотип, без
-  // сломанной композиции. При prefers-reduced-motion сцена остаётся (см.
-  // spinning ниже), откат на SVG — только когда рисовать реально нечем.
+  // сломанной композиции.
   if (tier === null || tier === "off") {
-    return <FallbackLogo className={className} />
-  }
-
-  if (!mounted) {
     return <FallbackLogo className={className} />
   }
 
   const reducedSegments = tier === "lite" ? 12 : 24
   const dprCap: [number, number] = tier === "lite" ? [1, 1.2] : [1, 1.5]
-  const canSpin = spinning && !reducedMotion
+  const canSpin = interactive && !reducedMotion
+  const shouldRender = visible && !tabHidden
 
   return (
     <div className={className}>
@@ -201,7 +214,7 @@ export function LogoScene({ mounted, spinning, className }: LogoSceneProps) {
         dpr={dprCap}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
         camera={{ fov: 40, position: [0, 0, 4.2] }}
-        frameloop={canSpin ? "always" : "demand"}
+        frameloop={shouldRender ? "always" : "never"}
       >
         <ambientLight intensity={0.28} color="#3a3f52" />
         <directionalLight position={[-2.2, 1.6, -1.8]} intensity={1.4} color="#cfd6ff" />

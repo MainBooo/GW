@@ -296,12 +296,24 @@ def build_laptop():
     # Локальные координаты LidGroup ДО поворота группы: "лежащая" крышка,
     # растущая от петли (local Y=0) вперёд (local Y>0), толщина по local Z.
     # Финальный открытый вид получается поворотом самой LidGroup вокруг X.
+    #
+    # make_box кладёт низ бокса на переданный location.z (нижняя грань на
+    # локальном Z=0 самого бокса, см. докстрок make_box) — стек по Z считаем
+    # явно от передней грани каждого предыдущего слоя, иначе непрозрачная
+    # рамка легко оказывается ВПЕРЕДИ экрана и полностью его закрывает
+    # (реальный баг первой версии скрипта: DisplayBezel был почти во весь
+    # размер крышки и наплывал на Screen по глубине).
     lid_shell = make_box("LidShell", BASE_W, lid_h, LID_T, material=BODY_MAT)
-    lid_shell.location = (0, lid_h / 2, LID_T / 2)
+    lid_shell_front_z = 0 + LID_T
+    lid_shell.location = (0, lid_h / 2, 0)
     parent_keep_world(lid_shell, lid_group)
 
-    bezel = make_box("DisplayBezel", BASE_W * 0.97, lid_h * 0.97, LID_T * 0.4, material=BODY_MAT)
-    bezel.location = (0, lid_h / 2, LID_T + LID_T * 0.2)
+    bezel_thickness = LID_T * 0.22
+    bezel_front_z = lid_shell_front_z + bezel_thickness
+    # Рамка — реальная граница вокруг экрана (чуть больше самого Screen), а
+    # не сплошная пластина на весь размер крышки.
+    bezel = make_box("DisplayBezel", screen_w + BEZEL * 2, screen_h + BEZEL * 2, bezel_thickness, material=BODY_MAT)
+    bezel.location = (0, lid_h / 2, lid_shell_front_z)
     parent_keep_world(bezel, lid_group)
 
     # ---- Screen: отдельная плоскость, честная UV 0..1, нормаль от петли ----
@@ -327,8 +339,8 @@ def build_laptop():
     screen_obj = bpy.data.objects.new("Screen", screen_mesh)
     bpy.context.collection.objects.link(screen_obj)
     screen_mesh.materials.append(SCREEN_MAT)
-    # Экран лежит на внутренней стороне крышки, чуть выше бейзела.
-    screen_obj.location = (0, lid_h / 2, LID_T + LID_T * 0.2 + 0.0006)
+    # Экран — чуть впереди передней грани рамки, не внутри неё.
+    screen_obj.location = (0, lid_h / 2, bezel_front_z + 0.0006)
     parent_keep_world(screen_obj, lid_group)
 
     glass_obj = bpy.data.objects.new("ScreenGlass", screen_mesh.copy())

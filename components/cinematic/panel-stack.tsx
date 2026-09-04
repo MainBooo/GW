@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { logoScrollState, type LogoVariant } from "@/lib/logo-scroll-state"
+import { PersistentLogo } from "@/components/cinematic/persistent-logo"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -71,12 +73,14 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const layerRefs = useRef<(HTMLDivElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [inViewport, setInViewport] = useState(true)
+  const [logoVariant, setLogoVariant] = useState<LogoVariant>("hero")
 
   useEffect(() => {
     const wrap = wrapRef.current
     if (!wrap) return
     const total = panels.length
     let lastActive = -1
+    let lastVariant: LogoVariant = "hero"
 
     const st = ScrollTrigger.create({
       trigger: wrap,
@@ -97,6 +101,20 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
         if (nextActive !== lastActive) {
           lastActive = nextActive
           setActive(nextActive)
+        }
+
+        // Логотип собран (assembly→1) у экрана-героя и у контактов, распадается
+        // между ними — то же треугольное окно, что и у кроссфейда видео, только
+        // для двух опорных точек (0 и последняя панель) вместо одной.
+        const heroWindow = Math.max(0, 1 - Math.abs(raw - 0))
+        const contactWindow = Math.max(0, 1 - Math.abs(raw - (total - 1)))
+        logoScrollState.assembly = Math.max(heroWindow, contactWindow)
+
+        const nextVariant: LogoVariant = heroWindow > 0.05 ? "hero" : contactWindow > 0.05 ? "contact" : "hidden"
+        logoScrollState.variant = nextVariant
+        if (nextVariant !== lastVariant) {
+          lastVariant = nextVariant
+          setLogoVariant(nextVariant)
         }
       },
     })
@@ -144,6 +162,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
       )}
 
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
+        <PersistentLogo variant={logoVariant} />
         {panels.map((p, i) => {
           const isActive = i === active
           const isNear = Math.abs(i - active) <= 1

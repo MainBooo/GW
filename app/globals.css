@@ -5,6 +5,11 @@
 :root {
   color-scheme: dark;
 
+  /* Высота плавающей шапки + её верхний отступ — единая точка правды для
+     scroll-padding-top и scroll-margin-top якорей, вместо повторного
+     подбора чисел в каждом месте, где это важно. */
+  --header-height: 88px;
+
   --background: #06070D;
   --surface: rgba(16, 19, 32, 0.58);
   --surface-strong: rgba(19, 23, 40, 0.82);
@@ -28,6 +33,79 @@
 /* Smooth scroll is handled by Lenis; native smooth-behavior would fight its rAF loop. */
 html {
   scroll-behavior: auto;
+  scroll-padding-top: var(--header-height);
+}
+
+/* Якоря вне PanelStack (например, заголовки на /lab) не должны прятаться
+   под плавающей шапкой при переходе по ссылке или Tab-фокусу. */
+[id] {
+  scroll-margin-top: var(--header-height);
+}
+
+/* Плавающая шапка учитывает notch/динамический остров вместо жёсткого pt-4. */
+[data-safe-top] {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+@media (min-width: 640px) {
+  [data-safe-top] {
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+  }
+}
+
+/* Боковые/нижняя выезжающие панели (мобильное меню, контактная форма) не
+   должны упираться в закруглённые углы/home-indicator на iOS. */
+[data-safe-x="right"] {
+  padding-right: env(safe-area-inset-right);
+}
+[data-safe-x="left"] {
+  padding-left: env(safe-area-inset-left);
+}
+[data-safe-bottom] {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------------------------------- */
+/* Персистентный логотип PanelStack   */
+/* ---------------------------------- */
+
+[data-logo-slot] {
+  opacity: 0;
+}
+
+/* Мобильный герой: логотип полностью за текстом, во весь экран, приглушён. */
+[data-logo-slot="hero"] {
+  inset: 6rem 0 0 0;
+  opacity: 0.14;
+}
+
+/* Мобильные контакты: небольшой, по центру, над контактной панелью. */
+[data-logo-slot="contact"] {
+  top: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 11rem;
+  height: 11rem;
+  opacity: 1;
+}
+
+@media (min-width: 1024px) {
+  [data-logo-slot="hero"] {
+    inset: auto;
+    top: 50%;
+    right: 6%;
+    left: auto;
+    bottom: auto;
+    width: 30rem;
+    height: 30rem;
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+
+  [data-logo-slot="contact"] {
+    top: 8rem;
+    width: 13rem;
+    height: 13rem;
+  }
 }
 
 body {

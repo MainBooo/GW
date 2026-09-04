@@ -20,6 +20,7 @@ type NavItem = { href: string; label: string; external?: boolean }
 const HOME_NAV_ITEMS: NavItem[] = [
   { href: "#services", label: "Услуги" },
   { href: "#products", label: "Продукты" },
+  { href: "/lab", label: "Lab", external: true },
   { href: "#contact", label: "Контакт" },
 ]
 
@@ -31,7 +32,7 @@ const OTHER_NAV_ITEMS: NavItem[] = [
 const isAnchor = (item: NavItem) => item.href.startsWith("#")
 
 export function Header() {
-  const { openPanel } = usePanel()
+  const { openPanel, activePanel } = usePanel()
   const [scrolled, setScrolled] = useState(false)
   const [activeHref, setActiveHref] = useState("#top")
   const pathname = usePathname()
@@ -76,7 +77,7 @@ export function Header() {
   }, [])
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex justify-center px-4 pt-4 sm:pt-6">
+    <header data-safe-top className="fixed inset-x-0 top-0 z-40 flex justify-center px-4">
       <div
         data-cursor-el
         className={`flex w-full max-w-[880px] items-center justify-between gap-4 rounded-full border px-4 py-2.5 transition-all duration-500 ease-out-soft sm:px-6 ${
@@ -125,7 +126,9 @@ export function Header() {
           <button
             type="button"
             onClick={() => openPanel("menu")}
-            aria-label="Открыть меню"
+            aria-label={activePanel === "menu" ? "Закрыть меню" : "Открыть меню"}
+            aria-expanded={activePanel === "menu"}
+            aria-controls="mobile-menu-panel"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10 lg:hidden"
           >
             <svg width="16" height="12" viewBox="0 0 18 14" fill="none" aria-hidden="true">
