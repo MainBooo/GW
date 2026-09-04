@@ -12,7 +12,7 @@ const LINKS = [
 export function ContactScreen({ onOpenContact }: { onOpenContact: () => void }) {
   return (
     <div className="container-shell flex h-full w-full flex-col items-center justify-center gap-10 pt-20">
-      <div className="glass-cinema mx-auto w-full max-w-2xl rounded-[28px] px-6 py-10 text-center sm:px-10 sm:py-14">
+      <div className="glass-cinema glass-cinema--logo mx-auto w-full max-w-2xl rounded-[28px] px-6 py-10 text-center sm:px-10 sm:py-14">
         <Eyebrow>COLLABORATION</Eyebrow>
         <h2 className="mt-4 text-balance text-[1.75rem] font-light leading-[1.15] tracking-tight text-cream sm:text-3xl lg:text-4xl">
           Нужен интерактивный сайт или сложный веб-продукт?
