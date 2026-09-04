@@ -134,19 +134,26 @@ function LogoRig({ pointerFollow, reducedMotion, segments }: { pointerFollow: bo
     }
   }, [reducedMotion, invalidate])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     // assembly постоянно читается извне (скролл) — кадр нужен всегда, пока
     // логотип потенциально виден, независимо от pointerFollow.
     if (!group.current || reducedMotion) return
-    // Медленное вращение включено всегда (кроме reduced-motion) — без него
-    // на мобильном (без курсора) объект замирает в одном ракурсе и, с матовым
-    // материалом без environment-карты, может целиком уйти в тень фона.
-    group.current.rotation.y += delta * 0.045
     if (pointerFollow) {
+      // Десктоп: непрерывное вращение + курсорный параллакс — то, что уже
+      // было и работало, не трогаем.
+      group.current.rotation.y += delta * 0.045
       const targetX = 0.1 - pointer.y * 0.12
       const targetZ = pointer.x * 0.08
       group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 2)
       group.current.rotation.z += (targetZ - group.current.rotation.z) * Math.min(1, delta * 2)
+    } else {
+      // Мобильный фон-логотип (нет курсора): полный оборот периодически
+      // разворачивает эту плоскую фигуру в широкий "анфас" почти на всю
+      // ширину карточки — читается как внезапное "проступание" сквозь блок
+      // с текстом. Вместо непрерывного вращения — ограниченное покачивание
+      // (не более ~13° от базового ракурса), объект остаётся живым, но
+      // никогда не разворачивается в контрастный крупный силуэт.
+      group.current.rotation.y = -0.3 + Math.sin(state.clock.elapsedTime * 0.15) * 0.22
     }
   })
 
