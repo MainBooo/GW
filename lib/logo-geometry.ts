@@ -36,8 +36,11 @@ export const EDGES: [NodeId, NodeId][] = [
   ["D", "F"],
 ]
 
+// ceramic был #22232b — при отсутствии environment-карты (сцена лит только
+// ambient + 2 directional) такой тёмный альбедо почти не отличим от тёмного
+// фона вне узкого пятна блика; поднят до различимого тёмного графита.
 export const MATERIAL_PROPS: Record<MaterialId, { color: string; roughness: number; clearcoat: number }> = {
-  ceramic: { color: "#22232b", roughness: 0.82, clearcoat: 0.18 },
+  ceramic: { color: "#454852", roughness: 0.68, clearcoat: 0.18 },
   sand: { color: "#c9ae82", roughness: 0.6, clearcoat: 0.22 },
   bordeaux: { color: "#6e2430", roughness: 0.5, clearcoat: 0.3 },
 }

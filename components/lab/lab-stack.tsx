@@ -143,9 +143,13 @@ export function LabStack() {
             }}
           >
             <color attach="background" args={["#06070d"]} />
-            <ambientLight intensity={0.3} color="#3a3f52" />
-            <directionalLight position={[-1.4, 1.6, 1.2]} intensity={1.1} color="#cfd6ff" />
-            <directionalLight position={[1.2, 0.6, -1]} intensity={0.5} color="#f2ecdd" />
+            <ambientLight intensity={0.6} color="#4a4f66" />
+            <directionalLight position={[-1.4, 1.6, 1.2]} intensity={1.2} color="#cfd6ff" />
+            <directionalLight position={[1.2, 0.6, -1]} intensity={0.6} color="#f2ecdd" />
+            {/* Мягкий фронтальный fill близко к камере — без него объекты с тёмным
+                матовым/металлическим материалом (нет environment-карты) уходят в
+                тень почти на любом ракурсе, особенно на фоне #06070d. */}
+            <directionalLight position={[0, 0.3, 0.7]} intensity={0.35} color="#e8e2d4" />
 
             {chapter === 0 && <IdentityChapter interactive={!isMobile} active={chapter === 0} />}
             {chapter === 1 && (

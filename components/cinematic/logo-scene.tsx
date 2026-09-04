@@ -121,25 +121,28 @@ function RigContents({ segments }: { segments: number }) {
   )
 }
 
-function LogoRig({ spinning, segments }: { spinning: boolean; segments: number }) {
+function LogoRig({ pointerFollow, reducedMotion, segments }: { pointerFollow: boolean; reducedMotion: boolean; segments: number }) {
   const group = useRef<THREE.Group>(null)
   const { pointer, invalidate } = useThree()
 
   useEffect(() => {
-    if (!spinning && group.current) {
+    if (reducedMotion && group.current) {
       // Фиксированный, заранее выверенный ракурс вместо "заморозки на
       // случайном кадре" — важно для prefers-reduced-motion и tier "lite".
       group.current.rotation.set(0.1, -0.3, 0)
       invalidate()
     }
-  }, [spinning, invalidate])
+  }, [reducedMotion, invalidate])
 
   useFrame((_, delta) => {
     // assembly постоянно читается извне (скролл) — кадр нужен всегда, пока
-    // логотип потенциально виден, независимо от spinning/parallax.
-    if (!group.current) return
-    if (spinning) {
-      group.current.rotation.y += delta * 0.045
+    // логотип потенциально виден, независимо от pointerFollow.
+    if (!group.current || reducedMotion) return
+    // Медленное вращение включено всегда (кроме reduced-motion) — без него
+    // на мобильном (без курсора) объект замирает в одном ракурсе и, с матовым
+    // материалом без environment-карты, может целиком уйти в тень фона.
+    group.current.rotation.y += delta * 0.045
+    if (pointerFollow) {
       const targetX = 0.1 - pointer.y * 0.12
       const targetZ = pointer.x * 0.08
       group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 2)
@@ -205,7 +208,6 @@ export function LogoScene({ className, interactive = true, visible = true }: Log
 
   const reducedSegments = tier === "lite" ? 12 : 24
   const dprCap: [number, number] = tier === "lite" ? [1, 1.2] : [1, 1.5]
-  const canSpin = interactive && !reducedMotion
   const shouldRender = visible && !tabHidden
 
   return (
@@ -216,12 +218,13 @@ export function LogoScene({ className, interactive = true, visible = true }: Log
         camera={{ fov: 40, position: [0, 0, 4.2] }}
         frameloop={shouldRender ? "always" : "never"}
       >
-        <ambientLight intensity={0.28} color="#3a3f52" />
+        <ambientLight intensity={0.55} color="#4a4f66" />
         <directionalLight position={[-2.2, 1.6, -1.8]} intensity={1.4} color="#cfd6ff" />
-        <directionalLight position={[1.6, 2, 2.6]} intensity={0.55} color="#f2ecdd" />
+        <directionalLight position={[1.6, 2, 2.6]} intensity={0.65} color="#f2ecdd" />
+        <directionalLight position={[0, 0.4, 4]} intensity={0.4} color="#e8e2d4" />
 
         <Suspense fallback={null}>
-          <LogoRig spinning={canSpin} segments={reducedSegments} />
+          <LogoRig pointerFollow={interactive} reducedMotion={reducedMotion} segments={reducedSegments} />
         </Suspense>
       </Canvas>
     </div>

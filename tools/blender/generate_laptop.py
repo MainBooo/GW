@@ -51,8 +51,13 @@ KEY_GAP = 0.0028
 
 TRI_BUDGET = 60_000
 
-BODY_COLOR = (0.055, 0.058, 0.065, 1.0)
-KEYBOARD_COLOR = (0.03, 0.032, 0.036, 1.0)
+# Изначальные значения (0.055/0.058/0.065 и т.д.) были откалиброваны под
+# студийный свет с environment-картой. В рантайм-сцене (R3F) только ambient +
+# directional-света без IBL — тот же альбедо с metallic>0 читался как чёрный
+# силуэт вне узкого пятна блика, особенно на тёмном фоне. Подняты и обезжирены
+# по metallic, чтобы форма была видна на любом ракурсе без отражений среды.
+BODY_COLOR = (0.09, 0.095, 0.105, 1.0)
+KEYBOARD_COLOR = (0.05, 0.052, 0.058, 1.0)
 SCREEN_COLOR = (0.01, 0.01, 0.012, 1.0)
 GLASS_COLOR = (0.02, 0.02, 0.024, 1.0)
 
@@ -191,7 +196,7 @@ def join_objects(objects, name: str):
 def build_laptop():
     global BODY_MAT, KEYBOARD_MAT, SCREEN_MAT, GLASS_MAT
 
-    BODY_MAT = make_material("BodyMaterial", BODY_COLOR, metallic=0.22, roughness=0.62)
+    BODY_MAT = make_material("BodyMaterial", BODY_COLOR, metallic=0.05, roughness=0.5)
     KEYBOARD_MAT = make_material("KeyboardMaterial", KEYBOARD_COLOR, metallic=0.05, roughness=0.7)
     SCREEN_MAT = make_material("ScreenMaterial", SCREEN_COLOR, metallic=0.0, roughness=0.5)
     GLASS_MAT = make_material("ScreenGlassMaterial", GLASS_COLOR, metallic=0.0, roughness=0.15, alpha=0.18)
