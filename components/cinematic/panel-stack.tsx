@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { logoScrollState, type LogoVariant } from "@/lib/logo-scroll-state"
@@ -20,6 +20,10 @@ export interface CinematicPanel {
 }
 
 type VideoState = "active" | "next" | "idle"
+
+/** Ширина окна кроссфейда в «экранах». Строго < 0.5, иначе окна соседних
+ *  панелей пересекутся и оба экрана окажутся видны одновременно. */
+const CROSSFADE_SPAN = 0.49
 
 /**
  * iOS в Low Power Mode иногда молча отклоняет автоплей — без poster кадр в
@@ -70,66 +74,152 @@ function PanelVideo({ src, state }: { src: string; state: VideoState }) {
 
 export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const wrapRef = useRef<HTMLDivElement>(null)
+  const stickyRef = useRef<HTMLDivElement>(null)
   const layerRefs = useRef<(HTMLDivElement | null)[]>([])
   /** Передний план панели (карточка с текстом) — гаснет синхронно с фоном. */
   const contentRefs = useRef<(HTMLDivElement | null)[]>([])
+  /** Обёртка контента: именно её мы сдвигаем, когда экран не помещается. */
+  const innerRefs = useRef<(HTMLDivElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [inViewport, setInViewport] = useState(true)
   const [logoVariant, setLogoVariant] = useState<LogoVariant>("hero")
+
+  /**
+   * vh — высота запиненного экрана, overflows — насколько контент каждой
+   * панели выше него. На десктопе везде 0. На телефоне «Услуги» и «Продукты»
+   * в 100svh не помещаются: раньше их просто обрезало (уходил заголовок и
+   * кнопка), теперь на эту разницу выделяется дополнительный ход скролла, и
+   * содержимое проезжает вверх внутри экрана, не ломая пиннинг и кроссфейд.
+   */
+  const [metrics, setMetrics] = useState<{ vh: number; overflows: number[] }>(() => ({
+    vh: 0,
+    overflows: panels.map(() => 0),
+  }))
+
+  useEffect(() => {
+    const sticky = stickyRef.current
+    if (!sticky) return
+    let frame = 0
+
+    const measure = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const vh = sticky.clientHeight
+        if (vh === 0) return
+        const overflows = panels.map((_, i) => {
+          const el = innerRefs.current[i]
+          return el ? Math.max(0, el.scrollHeight - vh) : 0
+        })
+        setMetrics((prev) => {
+          const same =
+            prev.vh === vh &&
+            prev.overflows.length === overflows.length &&
+            prev.overflows.every((v, i) => Math.abs(v - overflows[i]) < 1)
+          return same ? prev : { vh, overflows }
+        })
+      })
+    }
+
+    measure()
+    // Контент меняет высоту от переносов строк, шрифтов и подгрузки картинок,
+    // поэтому меряем не один раз, а следим за каждой обёрткой.
+    const observer = new ResizeObserver(measure)
+    observer.observe(sticky)
+    innerRefs.current.forEach((el) => el && observer.observe(el))
+    window.addEventListener("orientationchange", measure)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      window.removeEventListener("orientationchange", measure)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- panels пересоздаётся на каждом рендере родителя; значим только состав, а высоты приходят из ResizeObserver
+  }, [panels.length])
+
+  /**
+   * Раскладка в «экранах»: у панели i есть отрезок удержания [start, end]
+   * длиной в её переполнение (0, если помещается), затем ровно 1 экран на
+   * кроссфейд к следующей. При нулевых переполнениях это в точности прежняя
+   * равномерная сетка, поэтому десктоп не меняется.
+   */
+  const layout = useMemo(() => {
+    const { vh, overflows } = metrics
+    const holds = panels.map((_, i) => (vh > 0 ? (overflows[i] ?? 0) / vh : 0))
+    const starts: number[] = []
+    const ends: number[] = []
+    let cursor = 0
+    for (let i = 0; i < panels.length; i += 1) {
+      starts[i] = cursor
+      ends[i] = cursor + holds[i]
+      cursor = ends[i] + 1
+    }
+    const units = Math.max(ends[panels.length - 1] ?? 0, 0.0001)
+    return { holds, starts, ends, units, overflows, vh }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- см. выше: panels нестабилен по ссылке, раскладка зависит только от количества панелей и замеров
+  }, [metrics, panels.length])
 
   useEffect(() => {
     const wrap = wrapRef.current
     if (!wrap) return
     const total = panels.length
+    const { starts, ends, holds, units, overflows } = layout
     let lastActive = -1
     let lastVariant: LogoVariant = "hero"
 
-    // Вынесено из onUpdate, чтобы то же самое состояние можно было применить
-    // немедленно при создании триггера и на refresh. Без этого сцена до
-    // первого скролла жила на значениях по умолчанию: ScrollTrigger со scrub
-    // не гарантирует вызов onUpdate, пока пользователь реально не проскроллил,
-    // из-за чего первый же тик скролла скачком переводил логотип из
-    // «разобранного» вида в собранный (рёбра втрое толще) — это и читалось как
-    // «логотип резко проявился».
+    /** Расстояние от позиции до отрезка удержания панели (0, если внутри). */
+    const distanceTo = (pos: number, i: number) =>
+      pos < starts[i] ? starts[i] - pos : pos > ends[i] ? pos - ends[i] : 0
+
+    // Вынесено из onUpdate, чтобы то же состояние применялось сразу при
+    // создании триггера и на refresh: ScrollTrigger со scrub не гарантирует
+    // вызов onUpdate, пока пользователь реально не проскроллил.
     const applyProgress = (progress: number) => {
-        const raw = progress * (total - 1)
-        // Треугольное окно: слой i виден там, где raw ближе всего к i, и
-        // гаснет к соседям в радиусе CROSSFADE_SPAN (не на всём шаге между
-        // экранами — при плотном контенте (карточки/кнопки/футер) широкий
-        // блендинг двух экранов на 50/50 читается как наложение/поломка, а
-        // не как переход, поэтому окно сознательно уже полного шага). Строго
-        // < 0.5 — иначе соседние окна математически могут пересечься и оба
-        // слоя окажутся видны одновременно; 0.49 почти убирает и обратный
-        // артефакт (короткую "мёртвую зону" с обоими слоями на 0 на самой
-        // середине перехода), оставляя минимальный запас от 0.5.
-        const CROSSFADE_SPAN = 0.49
-        for (let i = 0; i < total; i += 1) {
-          const opacity = String(Math.max(0, 1 - Math.abs(raw - i) / CROSSFADE_SPAN))
-          const bg = layerRefs.current[i]
-          const fg = contentRefs.current[i]
-          if (bg) bg.style.opacity = opacity
-          if (fg) fg.style.opacity = opacity
+      const pos = progress * units
+
+      let bestIndex = 0
+      let bestDistance = Number.POSITIVE_INFINITY
+
+      for (let i = 0; i < total; i += 1) {
+        const d = distanceTo(pos, i)
+        if (d < bestDistance) {
+          bestDistance = d
+          bestIndex = i
         }
 
-        const nextActive = Math.max(0, Math.min(total - 1, Math.round(raw)))
-        if (nextActive !== lastActive) {
-          lastActive = nextActive
-          setActive(nextActive)
-        }
+        const opacity = String(Math.max(0, 1 - d / CROSSFADE_SPAN))
+        const bg = layerRefs.current[i]
+        const fg = contentRefs.current[i]
+        if (bg) bg.style.opacity = opacity
+        if (fg) fg.style.opacity = opacity
 
-        // Логотип собран (assembly→1) у экрана-героя и у контактов, распадается
-        // между ними — то же треугольное окно, что и у кроссфейда видео, только
-        // для двух опорных точек (0 и последняя панель) вместо одной.
-        const heroWindow = Math.max(0, 1 - Math.abs(raw - 0))
-        const contactWindow = Math.max(0, 1 - Math.abs(raw - (total - 1)))
-        logoScrollState.assembly = Math.max(heroWindow, contactWindow)
-
-        const nextVariant: LogoVariant = heroWindow > 0.05 ? "hero" : contactWindow > 0.05 ? "contact" : "hidden"
-        logoScrollState.variant = nextVariant
-        if (nextVariant !== lastVariant) {
-          lastVariant = nextVariant
-          setLogoVariant(nextVariant)
+        // Внутренний ход: пока идём по отрезку удержания, контент проезжает
+        // вверх ровно на своё переполнение — ни пикселя не теряется.
+        const inner = innerRefs.current[i]
+        if (inner) {
+          const hold = holds[i]
+          const travelled = hold > 0 ? Math.min(1, Math.max(0, (pos - starts[i]) / hold)) : 0
+          const shift = travelled * (overflows[i] ?? 0)
+          inner.style.transform = shift > 0 ? `translate3d(0, ${-shift}px, 0)` : ""
         }
+      }
+
+      if (bestIndex !== lastActive) {
+        lastActive = bestIndex
+        setActive(bestIndex)
+      }
+
+      // Логотип собран у экрана-героя и у контактов, распадается между ними —
+      // то же треугольное окно, что и у кроссфейда, только относительно
+      // отрезков удержания первой и последней панели.
+      const heroWindow = Math.max(0, 1 - distanceTo(pos, 0))
+      const contactWindow = Math.max(0, 1 - distanceTo(pos, total - 1))
+      logoScrollState.assembly = Math.max(heroWindow, contactWindow)
+
+      const nextVariant: LogoVariant = heroWindow > 0.05 ? "hero" : contactWindow > 0.05 ? "contact" : "hidden"
+      logoScrollState.variant = nextVariant
+      if (nextVariant !== lastVariant) {
+        lastVariant = nextVariant
+        setLogoVariant(nextVariant)
+      }
     }
 
     const st = ScrollTrigger.create({
@@ -144,7 +234,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     applyProgress(st.progress)
 
     return () => st.kill()
-  }, [panels.length])
+  }, [panels.length, layout])
 
   // Отдельная защита от "фонового" воспроизведения: если вся секция целиком
   // ушла из вьюпорта (например, будущий контент ниже экрана 4), видео и
@@ -172,8 +262,13 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     return "idle"
   }
 
+  // До первого замера высота задаётся в svh — ровно как раньше, поэтому первый
+  // кадр совпадает с прежней раскладкой и ничего не «прыгает».
+  const wrapHeight =
+    layout.vh > 0 ? `${(layout.units + 1) * layout.vh}px` : `${panels.length * 100}svh`
+
   return (
-    <div ref={wrapRef} style={{ height: `${panels.length * 100}svh` }} className="relative">
+    <div ref={wrapRef} style={{ height: wrapHeight }} className="relative">
       {panels.map(
         (p, i) =>
           p.anchorId && (
@@ -182,7 +277,11 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
               id={p.anchorId}
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0"
-              style={{ top: `${i * 100}svh`, height: "100svh" }}
+              style={
+                layout.vh > 0
+                  ? { top: `${layout.starts[i] * layout.vh}px`, height: `${layout.vh}px` }
+                  : { top: `${i * 100}svh`, height: "100svh" }
+              }
             />
           ),
       )}
@@ -201,7 +300,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
         текста. Это и читалось как «логотип резко проявился при скролле».
         С явными z-index у обоих слоёв порядок больше не зависит от opacity.
       */}
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
+      <div ref={stickyRef} className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
         {panels.map((p, i) => (
           <div
             key={`bg-${p.id}`}
@@ -229,11 +328,20 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
               ref={(el) => {
                 contentRefs.current[i] = el
               }}
-              className="absolute inset-0 z-10"
+              className="absolute inset-0 z-10 overflow-hidden"
               style={{ opacity: i === 0 ? 1 : 0 }}
               aria-hidden={!isActive}
             >
-              <div className="relative h-full w-full">{p.content({ isActive, isNear })}</div>
+              {/* min-h-full: обёртка не ниже экрана (короткий контент остаётся
+                  по центру), но растёт под длинный — его мы и сдвигаем. */}
+              <div
+                ref={(el) => {
+                  innerRefs.current[i] = el
+                }}
+                className="flex min-h-full w-full items-center will-change-transform"
+              >
+                {p.content({ isActive, isNear })}
+              </div>
             </div>
           )
         })}

@@ -25,7 +25,7 @@ const PRODUCTS = [
 
 export function ProductsScreen() {
   return (
-    <div className="container-shell flex h-full w-full items-center overflow-y-auto pt-24 pb-10">
+    <div className="container-shell flex h-full w-full items-center pt-24 pb-10">
       <div className="mx-auto w-full max-w-5xl">
         <Eyebrow>PRODUCTS</Eyebrow>
         <h2 className="mt-4 max-w-xl text-balance text-[1.75rem] font-light leading-[1.15] tracking-tight text-cream sm:text-3xl lg:text-4xl">
