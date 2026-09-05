@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { logoScrollState, type LogoVariant } from "@/lib/logo-scroll-state"
-import { PersistentLogo } from "@/components/cinematic/persistent-logo"
+import { logoScrollState } from "@/lib/logo-scroll-state"
+import { PersistentLogo, type LogoSlot } from "@/components/cinematic/persistent-logo"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -82,7 +82,10 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const innerRefs = useRef<(HTMLDivElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [inViewport, setInViewport] = useState(true)
-  const [logoVariant, setLogoVariant] = useState<LogoVariant>("hero")
+  const [logoSlot, setLogoSlot] = useState<LogoSlot>("hero")
+  const [logoLive, setLogoLive] = useState(true)
+  /** Обёртка затухания логотипа — правится напрямую, без ререндера на кадр. */
+  const logoFadeRef = useRef<HTMLDivElement>(null)
 
   /**
    * vh — высота запиненного экрана, overflows — насколько контент каждой
@@ -163,7 +166,8 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     const total = panels.length
     const { starts, ends, holds, units, overflows } = layout
     let lastActive = -1
-    let lastVariant: LogoVariant = "hero"
+    let lastSlot: LogoSlot = "hero"
+    let lastLive = false
 
     /** Расстояние от позиции до отрезка удержания панели (0, если внутри). */
     const distanceTo = (pos: number, i: number) =>
@@ -207,19 +211,44 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
         setActive(bestIndex)
       }
 
-      // Логотип собран у экрана-героя и у контактов, распадается между ними —
-      // то же треугольное окно, что и у кроссфейда, только относительно
-      // отрезков удержания первой и последней панели.
+      // Логотип стоит у экрана-героя и у контактов — то же треугольное окно,
+      // что и у кроссфейда, только относительно отрезков удержания первой и
+      // последней панели.
       const heroWindow = Math.max(0, 1 - distanceTo(pos, 0))
       const contactWindow = Math.max(0, 1 - distanceTo(pos, total - 1))
-      logoScrollState.assembly = Math.max(heroWindow, contactWindow)
+      const inContact = contactWindow > heroWindow
 
-      const nextVariant: LogoVariant = heroWindow > 0.05 ? "hero" : contactWindow > 0.05 ? "contact" : "hidden"
-      logoScrollState.variant = nextVariant
-      if (nextVariant !== lastVariant) {
-        lastVariant = nextVariant
-        setLogoVariant(nextVariant)
+      // У контактов знак НЕ разлетается. Там слот маленький и квадратный, а
+      // разлёт уводит крайние узлы за пределы кадра (правый нижний узел уходит
+      // примерно на 2.4 при полувидимой ширине ~1.4) — знак ломался и его
+      // правый нижний край срезался. Разлёт остаётся только у героя, где слот
+      // во весь экран.
+      logoScrollState.assembly = inContact ? 1 : heroWindow
+
+      // Затухание ведём напрямую по прогрессу, а не сменой варианта с
+      // переходом по времени: смена слота теперь происходит только там, где
+      // знак уже полностью прозрачен, поэтому его положение не «прыгает».
+      //
+      // Окно то же, что и у самой панели (CROSSFADE_SPAN), а не шире: иначе
+      // знак «переживал» свой экран — при уходе с контактов вверх продукты
+      // были видны уже на 78%, а логотип ещё на 24%, и поверх продуктов висел
+      // его кусок. Теперь он гаснет ровно вместе со своим экраном.
+      const logoDistance = distanceTo(pos, inContact ? total - 1 : 0)
+      const fade = Math.max(0, 1 - logoDistance / CROSSFADE_SPAN)
+      if (logoFadeRef.current) logoFadeRef.current.style.opacity = String(fade)
+
+      const nextSlot: LogoSlot = inContact ? "contact" : "hero"
+      if (nextSlot !== lastSlot) {
+        lastSlot = nextSlot
+        setLogoSlot(nextSlot)
       }
+
+      const nextLive = fade > 0.01
+      if (nextLive !== lastLive) {
+        lastLive = nextLive
+        setLogoLive(nextLive)
+      }
+      logoScrollState.variant = nextLive ? nextSlot : "hidden"
     }
 
     const st = ScrollTrigger.create({
@@ -317,7 +346,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
           </div>
         ))}
 
-        <PersistentLogo variant={logoVariant} />
+        <PersistentLogo ref={logoFadeRef} slot={logoSlot} live={logoLive} />
 
         {panels.map((p, i) => {
           const isActive = i === active
