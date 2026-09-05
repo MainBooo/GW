@@ -57,8 +57,18 @@ function RigContents({ segments }: { segments: number }) {
 
   const unitRod = useMemo(() => new THREE.CylinderGeometry(0.028, 0.028, 1, Math.max(6, Math.round(segments / 2))), [segments])
 
-  useFrame(() => {
-    const assembly = logoScrollState.assembly
+  // Сглаживание сборки: любое расхождение (первый тик скролла, refresh
+  // ScrollTrigger, возврат из bfcache) доезжает за ~0.2 c, а не применяется
+  // одним кадром. Толщина рёбер меняется втрое на всём диапазоне assembly,
+  // поэтому мгновенный скачок здесь особенно заметен.
+  const smoothedAssembly = useRef(logoScrollState.assembly)
+
+  useFrame((_, delta) => {
+    // delta ограничена по той же причине, что и в LogoRig: после паузы rAF
+    // (скролл-жест на iOS, свёрнутая вкладка) сырой delta схлопывает
+    // сглаживание в мгновенный скачок.
+    smoothedAssembly.current += (logoScrollState.assembly - smoothedAssembly.current) * Math.min(1, Math.min(delta, 1 / 30) * 8)
+    const assembly = smoothedAssembly.current
     for (const id of Object.keys(NODES) as NodeId[]) {
       const mesh = nodeRefs.current[id]
       if (!mesh) continue
@@ -134,27 +144,31 @@ function LogoRig({ pointerFollow, reducedMotion, segments }: { pointerFollow: bo
     }
   }, [reducedMotion, invalidate])
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     // assembly постоянно читается извне (скролл) — кадр нужен всегда, пока
     // логотип потенциально виден, независимо от pointerFollow.
     if (!group.current || reducedMotion) return
-    if (pointerFollow) {
-      // Десктоп: непрерывное вращение + курсорный параллакс — то, что уже
-      // было и работало, не трогаем.
-      group.current.rotation.y += delta * 0.045
-      const targetX = 0.1 - pointer.y * 0.12
-      const targetZ = pointer.x * 0.08
-      group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 2)
-      group.current.rotation.z += (targetZ - group.current.rotation.z) * Math.min(1, delta * 2)
-    } else {
-      // Мобильный фон-логотип (нет курсора): полный оборот периодически
-      // разворачивает эту плоскую фигуру в широкий "анфас" почти на всю
-      // ширину карточки — читается как внезапное "проступание" сквозь блок
-      // с текстом. Вместо непрерывного вращения — ограниченное покачивание
-      // (не более ~13° от базового ракурса), объект остаётся живым, но
-      // никогда не разворачивается в контрастный крупный силуэт.
-      group.current.rotation.y = -0.3 + Math.sin(state.clock.elapsedTime * 0.15) * 0.22
+    // Ограничение шага: после паузы rAF (скролл-жест на iOS, свёрнутая
+    // вкладка) delta приходит огромной, и движение отработало бы скачком.
+    const step = Math.min(delta, 1 / 30)
+    if (!pointerFollow) {
+      // Мобильный логотип в покое НЕ анимируется намеренно. Здесь он лежит
+      // во весь экран позади карточки с backdrop-filter, а WebKit не
+      // пересэмплирует размытый фон, пока страница неподвижна: под стеклом
+      // остаётся устаревший снимок сцены. Любое собственное движение
+      // логотипа поэтому копится незаметно, а первый же скролл обновляет
+      // композицию — и логотип скачком «проявляется» сквозь блок. Пока
+      // ничего не движется, устаревать нечему. Разлёт/сборка по скроллу
+      // безопасны: во время прокрутки композиция обновляется постоянно.
+      return
     }
+    // Десктоп: логотип стоит сбоку от карточки, а не под ней, поэтому
+    // непрерывное вращение и курсорный параллакс здесь безопасны.
+    group.current.rotation.y += step * 0.045
+    const targetX = 0.1 - pointer.y * 0.12
+    const targetZ = pointer.x * 0.08
+    group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, step * 2)
+    group.current.rotation.z += (targetZ - group.current.rotation.z) * Math.min(1, step * 2)
   })
 
   return (

@@ -71,6 +71,8 @@ function PanelVideo({ src, state }: { src: string; state: VideoState }) {
 export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const layerRefs = useRef<(HTMLDivElement | null)[]>([])
+  /** Передний план панели (карточка с текстом) — гаснет синхронно с фоном. */
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [inViewport, setInViewport] = useState(true)
   const [logoVariant, setLogoVariant] = useState<LogoVariant>("hero")
@@ -82,13 +84,15 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     let lastActive = -1
     let lastVariant: LogoVariant = "hero"
 
-    const st = ScrollTrigger.create({
-      trigger: wrap,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: (self) => {
-        const raw = self.progress * (total - 1)
+    // Вынесено из onUpdate, чтобы то же самое состояние можно было применить
+    // немедленно при создании триггера и на refresh. Без этого сцена до
+    // первого скролла жила на значениях по умолчанию: ScrollTrigger со scrub
+    // не гарантирует вызов onUpdate, пока пользователь реально не проскроллил,
+    // из-за чего первый же тик скролла скачком переводил логотип из
+    // «разобранного» вида в собранный (рёбра втрое толще) — это и читалось как
+    // «логотип резко проявился».
+    const applyProgress = (progress: number) => {
+        const raw = progress * (total - 1)
         // Треугольное окно: слой i виден там, где raw ближе всего к i, и
         // гаснет к соседям в радиусе CROSSFADE_SPAN (не на всём шаге между
         // экранами — при плотном контенте (карточки/кнопки/футер) широкий
@@ -99,11 +103,13 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
         // артефакт (короткую "мёртвую зону" с обоими слоями на 0 на самой
         // середине перехода), оставляя минимальный запас от 0.5.
         const CROSSFADE_SPAN = 0.49
-        layerRefs.current.forEach((el, i) => {
-          if (!el) return
-          const opacity = Math.max(0, 1 - Math.abs(raw - i) / CROSSFADE_SPAN)
-          el.style.opacity = String(opacity)
-        })
+        for (let i = 0; i < total; i += 1) {
+          const opacity = String(Math.max(0, 1 - Math.abs(raw - i) / CROSSFADE_SPAN))
+          const bg = layerRefs.current[i]
+          const fg = contentRefs.current[i]
+          if (bg) bg.style.opacity = opacity
+          if (fg) fg.style.opacity = opacity
+        }
 
         const nextActive = Math.max(0, Math.min(total - 1, Math.round(raw)))
         if (nextActive !== lastActive) {
@@ -124,8 +130,18 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
           lastVariant = nextVariant
           setLogoVariant(nextVariant)
         }
-      },
+    }
+
+    const st = ScrollTrigger.create({
+      trigger: wrap,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      onUpdate: (self) => applyProgress(self.progress),
+      onRefresh: (self) => applyProgress(self.progress),
     })
+
+    applyProgress(st.progress)
 
     return () => st.kill()
   }, [panels.length])
@@ -141,8 +157,10 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     return () => observer.disconnect()
   }, [])
 
+  // inert вешается на передний план: именно там живут ссылки и кнопки, фон
+  // (видео + градиент) интерактивных элементов не содержит.
   useEffect(() => {
-    layerRefs.current.forEach((el, i) => {
+    contentRefs.current.forEach((el, i) => {
       if (el) el.inert = i !== active
     })
   }, [active])
@@ -169,25 +187,53 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
           ),
       )}
 
+      {/*
+        Фон (видео + затемнение) и передний план (карточка с текстом) панели
+        разнесены в два отдельных слоя с ЯВНЫМИ z-index, между которыми стоит
+        логотип: фон(1) < логотип(6) < карточка(10).
+
+        Раньше это была одна общая обёртка на панель, и порядок отрисовки
+        зависел от значения её прозрачности: при opacity ровно 1 обёртка не
+        создаёт stacking context, поэтому вложенная карточка с z-10 попадала
+        в корневой контекст и оказывалась НАД логотипом (z-6). Первый же тик
+        скролла выставлял opacity 0.9969 — контекст появлялся, z-10 карточки
+        замыкался внутри обёртки, и логотип скачком выходил поверх карточки и
+        текста. Это и читалось как «логотип резко проявился при скролле».
+        С явными z-index у обоих слоёв порядок больше не зависит от opacity.
+      */}
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-background">
+        {panels.map((p, i) => (
+          <div
+            key={`bg-${p.id}`}
+            ref={(el) => {
+              layerRefs.current[i] = el
+            }}
+            className="absolute inset-0 z-[1]"
+            style={{ opacity: i === 0 ? 1 : 0 }}
+            aria-hidden="true"
+          >
+            <PanelVideo src={p.videoSrc} state={videoState(i)} />
+            {/* Затемнение снизу — текст должен читаться на любом кадре */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/50" />
+          </div>
+        ))}
+
         <PersistentLogo variant={logoVariant} />
+
         {panels.map((p, i) => {
           const isActive = i === active
           const isNear = Math.abs(i - active) <= 1
           return (
             <div
-              key={p.id}
+              key={`fg-${p.id}`}
               ref={(el) => {
-                layerRefs.current[i] = el
+                contentRefs.current[i] = el
               }}
-              className="absolute inset-0"
+              className="absolute inset-0 z-10"
               style={{ opacity: i === 0 ? 1 : 0 }}
               aria-hidden={!isActive}
             >
-              <PanelVideo src={p.videoSrc} state={videoState(i)} />
-              {/* Затемнение снизу — текст должен читаться на любом кадре */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/50" />
-              <div className="relative z-10 h-full w-full">{p.content({ isActive, isNear })}</div>
+              <div className="relative h-full w-full">{p.content({ isActive, isNear })}</div>
             </div>
           )
         })}
