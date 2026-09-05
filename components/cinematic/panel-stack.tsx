@@ -5,7 +5,6 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { logoScrollState, type LogoVariant } from "@/lib/logo-scroll-state"
 import { PersistentLogo } from "@/components/cinematic/persistent-logo"
-import { useIsMobile } from "@/lib/use-media-query"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -78,25 +77,9 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
   const [inViewport, setInViewport] = useState(true)
   const [logoVariant, setLogoVariant] = useState<LogoVariant>("hero")
 
-  // Мобильная раскладка: пиннинга нет, экраны идут обычным потоком. Контент
-  // «Услуг» и «Продуктов» разворачивается в столбец на 1000+px и физически не
-  // помещается в запиненные 100svh — обрезались заголовок сверху и кнопка
-  // снизу. В потоке высота секции задаётся содержимым (min-height 100svh),
-  // поэтому ничего не режется.
-  const isMobile = useIsMobile()
-  const sectionRefs = useRef<(HTMLElement | null)[]>([])
-  const [sectionsInView, setSectionsInView] = useState<boolean[]>(() => panels.map((_, i) => i === 0))
-
   useEffect(() => {
     const wrap = wrapRef.current
     if (!wrap) return
-    // На мобильном пиннинга нет — экраны идут обычным потоком, прогресс
-    // скролла ничем не управляет, логотип просто стоит собранным.
-    if (isMobile) {
-      logoScrollState.assembly = 1
-      logoScrollState.variant = "hero"
-      return
-    }
     const total = panels.length
     let lastActive = -1
     let lastVariant: LogoVariant = "hero"
@@ -161,7 +144,7 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     applyProgress(st.progress)
 
     return () => st.kill()
-  }, [panels.length, isMobile])
+  }, [panels.length])
 
   // Отдельная защита от "фонового" воспроизведения: если вся секция целиком
   // ушла из вьюпорта (например, будущий контент ниже экрана 4), видео и
@@ -173,29 +156,6 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     observer.observe(wrap)
     return () => observer.disconnect()
   }, [])
-
-  // Видимость секций в мобильной раскладке: играет только то видео, чья
-  // секция на экране, и рисуется только тот канвас логотипа, который виден.
-  useEffect(() => {
-    if (!isMobile) return
-    const els = sectionRefs.current.filter((el): el is HTMLElement => el !== null)
-    if (els.length === 0) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        setSectionsInView((prev) => {
-          const next = [...prev]
-          for (const entry of entries) {
-            const i = Number((entry.target as HTMLElement).dataset.panelIndex)
-            if (!Number.isNaN(i)) next[i] = entry.isIntersecting
-          }
-          return next
-        })
-      },
-      { threshold: 0.1 },
-    )
-    els.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [isMobile, panels.length])
 
   // inert вешается на передний план: именно там живут ссылки и кнопки, фон
   // (видео + градиент) интерактивных элементов не содержит.
@@ -210,44 +170,6 @@ export function PanelStack({ panels }: { panels: CinematicPanel[] }) {
     if (i === active) return "active"
     if (Math.abs(i - active) === 1) return "next"
     return "idle"
-  }
-
-  if (isMobile) {
-    const lastIndex = panels.length - 1
-    return (
-      <div ref={wrapRef} className="relative">
-        {panels.map((p, i) => {
-          // Логотип остаётся на первом экране и на контактах — как и в
-          // запиненной раскладке, только теперь это два отдельных канваса,
-          // и рисует только тот, чья секция на экране.
-          const logo: LogoVariant | null = i === 0 ? "hero" : i === lastIndex ? "contact" : null
-          return (
-            <section
-              key={p.id}
-              id={p.anchorId}
-              data-panel-index={i}
-              ref={(el) => {
-                sectionRefs.current[i] = el
-              }}
-              className="relative w-full overflow-hidden bg-background"
-            >
-              <div className="absolute inset-0 z-[1]">
-                <PanelVideo src={p.videoSrc} state={sectionsInView[i] ? "active" : "idle"} />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/50" />
-              </div>
-
-              {logo && <PersistentLogo variant={logo} active={sectionsInView[i]} />}
-
-              {/* min-height, а не height: секция растёт под контент, поэтому
-                  длинные экраны не обрезаются. */}
-              <div className="relative z-10 flex min-h-[100svh] w-full items-center py-10">
-                {p.content({ isActive: true, isNear: true })}
-              </div>
-            </section>
-          )
-        })}
-      </div>
-    )
   }
 
   return (

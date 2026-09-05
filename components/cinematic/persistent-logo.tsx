@@ -10,7 +10,7 @@ import type { LogoVariant } from "@/lib/logo-scroll-state"
  * переключается через data-variant (см. globals.css) вместо ремонта каждой
  * секции по отдельности — секции просто оставляют для него место.
  */
-export function PersistentLogo({ variant, active = true }: { variant: LogoVariant; active?: boolean }) {
+export function PersistentLogo({ variant }: { variant: LogoVariant }) {
   const isMobile = useIsMobile()
 
   return (
@@ -18,9 +18,7 @@ export function PersistentLogo({ variant, active = true }: { variant: LogoVarian
       <LogoScene
         className="h-full w-full"
         interactive={!isMobile && variant !== "hidden"}
-        // active=false — секция с логотипом вне экрана. В мобильной раскладке
-        // канвасов два (герой и контакты), и рисовать оба одновременно незачем.
-        visible={active && variant !== "hidden"}
+        visible={variant !== "hidden"}
       />
     </div>
   )
