@@ -37,9 +37,14 @@ const CHAPTERS: LabChapterCopy[] = [
   },
 ]
 
-/** Desktop: 300svh пина на главу. Mobile: короче — меньше длительного pinning. */
+/**
+ * Ход прокрутки на главу. Mobile короче десктопа, но не настолько, чтобы
+ * раскадровка ноутбука (открытие → интерфейс → exploded view → сборка)
+ * скомкалась: при 190svh на главу приходилось меньше 1.5 экрана, и открытие
+ * крышки пролетало почти мгновенно.
+ */
 function chapterHeightSvh(isMobile: boolean) {
-  return isMobile ? 190 : 300
+  return isMobile ? 260 : 300
 }
 
 export function LabStack() {
@@ -84,11 +89,24 @@ export function LabStack() {
         },
       })
 
-      return () => st.kill()
+      // Высота обёртки зависит от isMobile, а он определяется только после
+      // монтирования: секция ужимается уже ПОСЛЕ того, как ScrollTrigger снял
+      // размеры. Сам он на изменение размеров элемента не реагирует, поэтому
+      // end оставался посчитанным по прежней (десктопной) высоте — прогресс на
+      // мобильном упирался в 0.56 вместо 1, вторая глава получала local не
+      // больше 0.12, и крышка ноутбука (открытие с 0.15) не успевала
+      // открыться вообще. Следим за реальной высотой и пересчитываем.
+      const observer = new ResizeObserver(() => ScrollTrigger.refresh())
+      observer.observe(wrap)
+
+      return () => {
+        observer.disconnect()
+        st.kill()
+      }
     }, wrap)
 
     return () => ctx.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, isMobile])
 
   useEffect(() => {
     const wrap = wrapRef.current

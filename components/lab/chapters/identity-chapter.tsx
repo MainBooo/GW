@@ -21,6 +21,9 @@ import { labScrollState } from "@/lib/lab-scroll-state"
 // демонстрация, ему нужен явно читаемый размах.
 const SCATTER_BOOST = 2.4
 
+/** Аспект, под который выставлялся кадр (десктопный). */
+const DESIGN_ASPECT = 1.6
+
 function currentNodePos(id: NodeId, assembly: number, out: THREE.Vector3): THREE.Vector3 {
   const base = NODES[id].pos
   const scatter = SCATTER[id]
@@ -40,8 +43,22 @@ export function IdentityChapter({ interactive, active }: { interactive: boolean;
   const group = useRef<THREE.Group>(null)
   const nodeRefs = useRef<Partial<Record<NodeId, THREE.Mesh>>>({})
   const rodRefs = useRef<(THREE.Mesh | null)[]>([])
-  const { pointer, camera } = useThree()
+  const { pointer, camera, size } = useThree()
   const lookTarget = useMemo(() => new THREE.Vector3(0, 0.12, 0), [])
+
+  /**
+   * Камера общая для обеих глав, и раньше эта глава её не трогала — задавала
+   * только lookAt. После возврата со второй главы кадр оставался ноутбучным.
+   * Здесь своя опорная точка, отодвинутая под аспект по тому же правилу, что
+   * и в главе с ноутбуком (fov вертикальный, на портрете по горизонтали
+   * влезает меньше).
+   */
+  const cameraBase = useMemo(() => new THREE.Vector3(0, 0.2, 0.6), [])
+  const camPos = useMemo(() => new THREE.Vector3(), [])
+  const fitScale = useMemo(() => {
+    const aspect = size.height > 0 ? size.width / size.height : DESIGN_ASPECT
+    return Math.max(1, DESIGN_ASPECT / aspect)
+  }, [size.width, size.height])
 
   const tmpA = useMemo(() => new THREE.Vector3(), [])
   const tmpB = useMemo(() => new THREE.Vector3(), [])
@@ -89,6 +106,8 @@ export function IdentityChapter({ interactive, active }: { interactive: boolean;
     group.current.rotation.y += (baseYaw + cursorYaw - group.current.rotation.y) * Math.min(1, delta * 3)
     group.current.rotation.x += (0.12 + cursorPitch - group.current.rotation.x) * Math.min(1, delta * 3)
 
+    camPos.copy(cameraBase).sub(lookTarget).multiplyScalar(fitScale).add(lookTarget)
+    camera.position.lerp(camPos, Math.min(1, delta * 4))
     camera.lookAt(lookTarget)
   })
 

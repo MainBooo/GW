@@ -8,6 +8,9 @@ import { labScrollState } from "@/lib/lab-scroll-state"
 
 const MODEL_URL = "/models/laptop.glb"
 
+/** Аспект, под который выставлялась раскадровка камеры (десктопный кадр). */
+const DESIGN_ASPECT = 1.6
+
 const REQUIRED_NAMES = [
   "LaptopRoot",
   "BaseGroup",
@@ -91,7 +94,7 @@ const HINGE_WORLD_POS: [number, number, number] = [0, 0.015, -0.22]
 
 export function LaptopChapter({ onError }: { onError: (message: string) => void }) {
   const gltf = useGLTF(MODEL_URL)
-  const { camera } = useThree()
+  const { camera, size } = useThree()
   const screenRef = useRef<THREE.Mesh>(null)
   const lidProxyRef = useRef<THREE.Group>(null)
 
@@ -135,6 +138,18 @@ export function LaptopChapter({ onError }: { onError: (message: string) => void 
   const cameraFinal = useMemo(() => new THREE.Vector3(0, 0.2, 0.58), [])
   const lookTarget = useMemo(() => new THREE.Vector3(0, 0.1, 0), [])
   const camPos = useMemo(() => new THREE.Vector3(), [])
+
+  /**
+   * Раскадровка камеры выставлялась под ландшафтный кадр. fov вертикальный, и
+   * на портретном экране по горизонтали влезает во столько же раз меньше, во
+   * сколько уже аспект: на 390x664 ноутбук занимал 163% ширины кадра и просто
+   * не помещался. Отодвигаем камеру от точки взгляда ровно на отношение
+   * аспектов — композиция получается той же, что и на десктопе.
+   */
+  const fitScale = useMemo(() => {
+    const aspect = size.height > 0 ? size.width / size.height : DESIGN_ASPECT
+    return Math.max(1, DESIGN_ASPECT / aspect)
+  }, [size.width, size.height])
   const screenColor = useMemo(() => new THREE.Color(), [])
 
   useFrame((_, delta) => {
@@ -190,6 +205,9 @@ export function LaptopChapter({ onError }: { onError: (message: string) => void 
     } else {
       camPos.lerpVectors(cameraExploded, cameraFinal, band(progress, 0.86, 1))
     }
+    // Масштабируем расстояние относительно точки взгляда, а не начала
+    // координат: направление обзора сохраняется, меняется только удаление.
+    camPos.sub(lookTarget).multiplyScalar(fitScale).add(lookTarget)
     camera.position.lerp(camPos, Math.min(1, delta * 4))
     camera.lookAt(lookTarget)
 
